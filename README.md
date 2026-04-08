@@ -21,6 +21,9 @@
   <a href="https://x.com/michael_haviv">
     <img src="https://img.shields.io/badge/Contact-@michael__haviv-1DA1F2?logo=x&logoColor=white" />
   </a>
+  <a href="https://www.linkedin.com/in/michaelhaviv/">
+    <img src="https://img.shields.io/badge/LinkedIn-Michael_Haviv-0A66C2?logo=linkedin&logoColor=white" />
+  </a>
 </p>
 
 ---
