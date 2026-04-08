@@ -55,9 +55,10 @@ LLMs generate focus code that compiles and looks reasonable — but breaks in wa
 Apple Focus Pro pairs well with these skills:
 
 - [SwiftUI Pro](https://github.com/twostraws/SwiftUI-Agent-Skill) by Paul Hudson — SwiftUI best practices and patterns
-- [Swift Concurrency Pro](https://github.com/twostraws/Swift-Concurrency-Agent-Skill) by Paul Hudson — async/await, actors, Sendable
-- [Swift Testing Pro](https://github.com/twostraws/Swift-Testing-Agent-Skill) by Paul Hudson — Swift Testing framework
-- [SwiftData Pro](https://github.com/twostraws/SwiftData-Agent-Skill) by Paul Hudson — SwiftData patterns
+- [Swift Concurrency](https://github.com/AvdLee/Swift-Concurrency-Agent-Skill) by Antoine van der Lee — async/await, actors, Swift 6 migration
+- [iOS Accessibility](https://github.com/dadederk/iOS-Accessibility-Agent-Skill) by Daniel Devesa — VoiceOver, Dynamic Type, accessibility best practices
+- [Swift Architecture](https://github.com/efremidze/swift-architecture-skill) by Lasha Efremidze — MVP, MVVM, TCA, Clean Architecture patterns
+- [Xcode Build Optimization](https://github.com/AvdLee/Xcode-Build-Optimization-Agent-Skill) by Antoine van der Lee — build benchmarking and optimization
 
 See the [Swift Agent Skills](https://github.com/twostraws/Swift-Agent-Skills) directory for more.
 
