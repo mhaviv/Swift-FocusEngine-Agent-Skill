@@ -1,0 +1,19 @@
+{
+  "name": "apple-focus-pro",
+  "version": "1.0.0",
+  "description": "Expert focus management guidance for tvOS, iOS/iPadOS, watchOS, and visionOS. Covers SwiftUI, UIKit, and RealityKit focus APIs, 14 critical anti-patterns, and debugging techniques.",
+  "author": {
+    "name": "Michael Haviv",
+    "email": "mhaviv@users.noreply.github.com"
+  },
+  "repository": "https://github.com/mhaviv/Apple-Focus-Agent-Skill",
+  "license": "MIT",
+  "keywords": [
+    "swift", "swiftui", "uikit", "tvos", "ios", "watchos", "visionos",
+    "focus", "focus-engine", "focus-management", "apple",
+    "realitykit", "hover-effect", "accessibility"
+  ],
+  "skills": [
+    "./apple-focus-pro"
+  ]
+}

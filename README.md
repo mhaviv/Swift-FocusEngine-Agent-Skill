@@ -30,9 +30,36 @@
 
 Apple Focus Pro is a free, open-source agent skill that helps AI coding assistants write correct focus management code for **tvOS**, **iOS/iPadOS**, **watchOS**, and **visionOS**. It covers SwiftUI, UIKit, and RealityKit — targeting the mistakes LLMs actually make with Apple's focus engine.
 
-Built from real-world experience shipping tvOS apps at Fox News and Fox Weather, Apple developer documentation, WWDC sessions (2017-2025), and community best practices from Airbnb, Showmax, and others.
+Built from real-world experience shipping production tvOS apps, Apple developer documentation, WWDC sessions (2017-2025), and community best practices from Airbnb, Showmax, and others.
 
 Works with [Claude Code](https://claude.ai/code), [Codex](https://openai.com/codex), [Cursor](https://cursor.sh), [Gemini CLI](https://github.com/google-gemini/gemini-cli), and any tool supporting the [Agent Skills](https://agentskills.io) format.
+
+## Who This Is For
+
+- **tvOS developers** — building apps where every interaction depends on the focus engine working correctly
+- **iOS/iPadOS developers** — adding keyboard, game controller, or external display support with focus groups
+- **visionOS developers** — navigating the differences between gaze, hover, and focus in spatial computing
+
+## Why Use an Agent Skill for Focus?
+
+Focus management on Apple platforms is one of the hardest things to get right — and one of the hardest things to debug when it breaks.
+
+The focus engine is geometric, not hierarchical. It doesn't follow your view tree. When a user swipes right and focus jumps two rows away instead of to the next item, there's no error, no crash, no log — it just looks broken. The item wasn't perfectly vertically aligned, so the engine picked a different candidate. You'll spend hours in `UIFocusDebugger` before you figure out why.
+
+Apple's documentation covers the APIs but not the real-world edge cases: what happens when you reload data and focus resets to the top, why `.disabled()` silently removes views from the focus chain on tvOS, why `.focusSection()` is the difference between a usable scroll view and chaos, or why `onHover` doesn't fire from eye gaze on visionOS.
+
+LLMs generate focus code that compiles and looks reasonable — but breaks in ways you only discover on a real device with a Siri Remote in your hand. This skill is built from my experience getting focus to actually work in a complex, production tvOS app. Every anti-pattern in here is something I hit, debugged, and fixed.
+
+## Complementary Skills
+
+Apple Focus Pro pairs well with these skills:
+
+- [SwiftUI Pro](https://github.com/twostraws/SwiftUI-Agent-Skill) by Paul Hudson — SwiftUI best practices and patterns
+- [Swift Concurrency Pro](https://github.com/twostraws/Swift-Concurrency-Agent-Skill) by Paul Hudson — async/await, actors, Sendable
+- [Swift Testing Pro](https://github.com/twostraws/Swift-Testing-Agent-Skill) by Paul Hudson — Swift Testing framework
+- [SwiftData Pro](https://github.com/twostraws/SwiftData-Agent-Skill) by Paul Hudson — SwiftData patterns
+
+See the [Swift Agent Skills](https://github.com/twostraws/Swift-Agent-Skills) directory for more.
 
 ## Installing
 
@@ -68,13 +95,22 @@ npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-f
 
 Any agent that supports the [Agent Skills](https://agentskills.io) format can use this skill. See [agentskills.io](https://agentskills.io) for instructions on adding skills to your agent.
 
+<details>
+<summary>Don't have Node installed?</summary>
+
+```bash
+brew install node
+```
+
+Or download from [nodejs.org](https://nodejs.org).
+</details>
+
 ## Using
 
 ### Claude Code
 ```
 /apple-focus-pro Review this view for tvOS focus issues
 ```
-Or naturally: *"Check my SwiftUI code for focus management problems"*
 
 ### Codex
 ```
@@ -85,7 +121,6 @@ $apple-focus-pro Check my SwiftUI code for focus anti-patterns
 ```
 /apple-focus-pro Review this view for tvOS focus issues
 ```
-Or reference the skill naturally in chat.
 
 ### Gemini CLI
 ```
@@ -94,6 +129,15 @@ Use the apple-focus-pro skill to review my focus handling code
 
 ### Any Agent
 > Use the Apple Focus Pro skill to audit my project for focus management problems
+
+### Example Prompts
+
+- *"Why isn't the first item focused when my view appears?"*
+- *"Focus is jumping to a completely different row when I swipe right — the items aren't perfectly aligned vertically"*
+- *"How do I keep focus position after my data reloads?"*
+- *"I added .disabled() to a button but now focus skips over the entire section"*
+- *"What's the difference between gaze and focus on visionOS?"*
+- *"My Digital Crown rotation stopped working after I reordered my view modifiers"*
 
 ## What It Covers
 
@@ -132,7 +176,7 @@ Built from:
 - WWDC23: The SwiftUI cookbook for focus
 - WWDC24: Create custom hover effects in visionOS
 - WWDC25: Design hover interactions for visionOS
-- Production tvOS apps (Fox News, Fox Weather)
+- Production tvOS apps with complex focus requirements
 - Community guides (Airbnb, Showmax, Fatbobman, Big Nerd Ranch)
 
 ## Contributing
@@ -144,7 +188,7 @@ Contributions are welcome! Focus on:
 - **Real-world patterns** — battle-tested solutions from production apps
 - **Anti-patterns** — mistakes LLMs commonly generate
 
-Keep reference files focused and under 300 lines each. All contributions must be MIT licensed.
+Keep reference files focused and under 300 lines each. Don't repeat things LLMs already know — focus on what they get wrong. All contributions must be MIT licensed.
 
 Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/claude-code/refs/heads/main/marketplace/marketplace.schema.json",
+  "name": "apple-focus-pro",
+  "version": "1.0.0",
+  "owner": {
+    "name": "Michael Haviv",
+    "email": "mhaviv@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "Focus management expertise for tvOS, iOS/iPadOS, watchOS, and visionOS. Covers SwiftUI, UIKit, and RealityKit focus APIs."
+  },
+  "plugins": [
+    {
+      "name": "apple-focus-pro",
+      "description": "Expert focus management guidance for all Apple platforms. Covers @FocusState, UIFocusEnvironment, UIFocusGuide, focusSection, focusGroupIdentifier, HoverEffect, Digital Crown routing, and 14 critical anti-patterns that break focus navigation.",
+      "repository": "https://github.com/mhaviv/Apple-Focus-Agent-Skill",
+      "version": "1.0.0",
+      "author": {
+        "name": "Michael Haviv",
+        "email": "mhaviv@users.noreply.github.com"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "swift", "swiftui", "uikit", "tvos", "ios", "watchos", "visionos",
+        "focus", "focus-engine", "focus-management", "apple",
+        "realitykit", "hover-effect", "accessibility"
+      ],
+      "tags": [
+        "swift", "focus", "tvos", "ios", "visionos", "watchos",
+        "swiftui", "uikit", "apple-platforms"
+      ],
+      "source": "./"
+    }
+  ]
+}
