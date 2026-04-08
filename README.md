@@ -9,17 +9,17 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/tvOS-18+-000000?logo=apple" />
+  <img src="https://img.shields.io/badge/tvOS-15+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/iOS-15+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/watchOS-8+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/visionOS-1+-000000?logo=apple" />
-  <img src="https://img.shields.io/badge/Swift-6.2-F05138?logo=swift&logoColor=white" />
+  <img src="https://img.shields.io/badge/Swift-5.9+-F05138?logo=swift&logoColor=white" />
   <img src="https://img.shields.io/badge/License-MIT-blue" />
 </p>
 
 <p align="center">
-  <a href="https://x.com/mikiehaviv">
-    <img src="https://img.shields.io/badge/Contact-@mikiehaviv-1DA1F2?logo=x&logoColor=white" />
+  <a href="https://x.com/michael_haviv">
+    <img src="https://img.shields.io/badge/Contact-@michael__haviv-1DA1F2?logo=x&logoColor=white" />
   </a>
 </p>
 
@@ -33,15 +33,42 @@ Works with [Claude Code](https://claude.ai/code), [Codex](https://openai.com/cod
 
 ## Installing
 
+### Claude Code
+
 ```bash
+# Project-level (recommended)
 npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro
-```
 
-Add `-g` for global install (all projects) or `-y` for non-interactive:
+# Global (all projects)
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro -g
 
-```bash
+# Non-interactive
 npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro -g -y
 ```
+
+### Codex
+
+```bash
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro --agent codex
+```
+
+### Cursor
+
+```bash
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro --agent cursor
+```
+
+Or manually copy the skill's `SKILL.md` and `references/` directory into `.cursor/rules/` in your project.
+
+### Gemini CLI
+
+```bash
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro --agent gemini
+```
+
+### Other Agents
+
+Any agent that supports the [Agent Skills](https://agentskills.io) format can use this skill. Copy `SKILL.md` and the `references/` directory into your agent's skill/rules directory.
 
 <details>
 <summary>Don't have Node installed?</summary>
@@ -55,17 +82,27 @@ Or download from [nodejs.org](https://nodejs.org).
 
 ## Using
 
-**Claude Code:**
+### Claude Code
 ```
 /apple-focus-pro Review this view for tvOS focus issues
 ```
+Or naturally: *"Check my SwiftUI code for focus management problems"*
 
-**Codex:**
+### Codex
 ```
 $apple-focus-pro Check my SwiftUI code for focus anti-patterns
 ```
 
-**Natural language (any agent):**
+### Cursor
+Reference the skill in chat or use natural language:
+> Use the Apple Focus Pro skill to audit my project for focus management problems
+
+### Gemini CLI
+```
+Use the apple-focus-pro skill to review my focus handling code
+```
+
+### Any Agent
 > Use the Apple Focus Pro skill to audit my project for focus management problems
 
 ## What It Covers
