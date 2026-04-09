@@ -69,34 +69,34 @@ LLMs generate focus code that compiles and looks reasonable — but breaks in wa
 
 ```bash
 # Global (all projects)
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro -g -y
+npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill swift-focusengine-pro -g -y
 
 # Project-level only
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro -y
+npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill swift-focusengine-pro -y
 ```
 
 ### Codex
 
 ```bash
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro --agent codex
+npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill swift-focusengine-pro --agent codex
 ```
 
 ### Cursor
 
 ```bash
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro --agent cursor
+npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill swift-focusengine-pro --agent cursor
 ```
 
 ### GitHub Copilot
 
 ```bash
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro --agent github-copilot
+npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill swift-focusengine-pro --agent github-copilot
 ```
 
 ### Gemini CLI
 
 ```bash
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro --agent gemini
+npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill swift-focusengine-pro --agent gemini
 ```
 
 ### Other Agents
