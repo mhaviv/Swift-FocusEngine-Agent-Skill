@@ -143,7 +143,7 @@ $apple-focus-pro Check my SwiftUI code for focus anti-patterns
 
 ### GitHub Copilot
 ```
-Use the apple-focus-pro skill to review my focus handling code
+/apple-focus-pro Review this view for tvOS focus issues
 ```
 
 ### Gemini CLI
@@ -172,9 +172,9 @@ Use the apple-focus-pro skill to review my focus handling code
 | **anti-patterns.md** | All | 14 critical mistakes that break focus navigation |
 | **swiftui-focus.md** | tvOS | @FocusState, focusSection, prefersDefaultFocus, AutoFocusManager pattern |
 | **uikit-focus.md** | tvOS | UIFocusEnvironment, UIFocusGuide, shouldUpdateFocus, didUpdateFocus |
-| **ios-focus.md** | iOS/iPadOS | Focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard navigation |
-| **watchos-focus.md** | watchOS | Digital Crown routing, sequential focus, digitalCrownRotation |
-| **visionos-focus.md** | visionOS | Gaze vs hover vs focus, HoverEffect, HoverEffectGroup, RealityKit |
+| **ios-focus.md** | iOS/iPadOS | SwiftUI + UIKit: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard navigation |
+| **watchos-focus.md** | watchOS | SwiftUI: Digital Crown routing, sequential focus, digitalCrownRotation |
+| **visionos-focus.md** | visionOS | SwiftUI + UIKit + RealityKit: gaze vs hover vs focus, HoverEffect, HoverEffectComponent |
 | **focus-styling.md** | All | ButtonStyle + isFocused, FocusBorder, CABasicAnimation, CardButtonStyle |
 | **focus-restoration.md** | All | Data reload handling, safe reload pattern, row offset tracking |
 | **layout-patterns.md** | tvOS | Table-of-collections, sidebar+content, tab bar, hero+catalog |
