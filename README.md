@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/logo.svg" height="120" alt="Apple Focus Pro" />
+  <img src="assets/logo.svg" height="120" alt="Swift FocusEngine Pro" />
 </p>
 
-<h1 align="center">Apple Focus Pro</h1>
+<h1 align="center">Swift FocusEngine Pro</h1>
 
 <p align="center">
   <strong>Agent skill for focus management across all Apple platforms</strong>
@@ -28,7 +28,7 @@
 
 ---
 
-Apple Focus Pro is a free, open-source agent skill that helps AI coding assistants write correct focus management code for **tvOS**, **iOS/iPadOS**, **watchOS**, and **visionOS**. It covers SwiftUI, UIKit, and RealityKit — targeting the mistakes LLMs actually make with Apple's focus engine.
+Swift FocusEngine Pro is a free, open-source agent skill that helps AI coding assistants write correct focus management code for **tvOS**, **iOS/iPadOS**, **watchOS**, and **visionOS**. It covers SwiftUI, UIKit, and RealityKit — targeting the mistakes LLMs actually make with Apple's focus engine.
 
 Built from real-world experience shipping production tvOS apps, Apple developer documentation, WWDC sessions (2017-2025), and community best practices from Airbnb, Showmax, and others.
 
@@ -38,12 +38,12 @@ Works with [Claude Code](https://claude.ai/code), [Codex](https://openai.com/cod
 
 - [Who This Is For](#who-this-is-for)
 - [Why Use an Agent Skill for Focus?](#why-use-an-agent-skill-for-focus)
-- [Complementary Skills](#complementary-skills)
 - [Installing](#installing)
 - [Using](#using)
 - [What It Covers](#what-it-covers)
 - [Anti-Patterns It Catches](#anti-patterns-it-catches)
 - [Sources](#sources)
+- [Complementary Skills](#complementary-skills)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -63,51 +63,40 @@ Apple's documentation covers the APIs but not the real-world edge cases: what ha
 
 LLMs generate focus code that compiles and looks reasonable — but breaks in ways you only discover on a real device with a Siri Remote in your hand. This skill is built from my experience getting focus to actually work in a complex, production tvOS app. Every anti-pattern in here is something I hit, debugged, and fixed.
 
-## Complementary Skills
-
-Apple Focus Pro pairs well with these skills:
-
-- [SwiftUI Pro](https://github.com/twostraws/SwiftUI-Agent-Skill) by Paul Hudson — SwiftUI best practices and patterns
-- [Swift Concurrency Pro](https://github.com/twostraws/Swift-Concurrency-Agent-Skill) by Paul Hudson — async/await, actors, Sendable
-- [Swift Concurrency](https://github.com/AvdLee/Swift-Concurrency-Agent-Skill) by Antoine van der Lee — Swift 6 migration, data race prevention
-- [Xcode Build Optimization](https://github.com/AvdLee/Xcode-Build-Optimization-Agent-Skill) by Antoine van der Lee — build benchmarking and optimization
-
-See the [Swift Agent Skills](https://github.com/twostraws/Swift-Agent-Skills) directory for more.
-
 ## Installing
 
 ### Claude Code
 
 ```bash
 # Global (all projects)
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro -g -y
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro -g -y
 
 # Project-level only
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro -y
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro -y
 ```
 
 ### Codex
 
 ```bash
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro --agent codex
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro --agent codex
 ```
 
 ### Cursor
 
 ```bash
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro --agent cursor
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro --agent cursor
 ```
 
 ### GitHub Copilot
 
 ```bash
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro --agent github-copilot
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro --agent github-copilot
 ```
 
 ### Gemini CLI
 
 ```bash
-npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill apple-focus-pro --agent gemini
+npx skills add https://github.com/mhaviv/Apple-Focus-Agent-Skill --skill swift-focusengine-pro --agent gemini
 ```
 
 ### Other Agents
@@ -128,31 +117,31 @@ Or download from [nodejs.org](https://nodejs.org).
 
 ### Claude Code
 ```
-/apple-focus-pro Review this view for tvOS focus issues
+/swift-focusengine-pro Review this view for tvOS focus issues
 ```
 
 ### Codex
 ```
-$apple-focus-pro Check my SwiftUI code for focus anti-patterns
+$swift-focusengine-pro Check my SwiftUI code for focus anti-patterns
 ```
 
 ### Cursor
 ```
-/apple-focus-pro Review this view for tvOS focus issues
+/swift-focusengine-pro Review this view for tvOS focus issues
 ```
 
 ### GitHub Copilot
 ```
-/apple-focus-pro Review this view for tvOS focus issues
+/swift-focusengine-pro Review this view for tvOS focus issues
 ```
 
 ### Gemini CLI
 ```
-Use the apple-focus-pro skill to review my focus handling code
+Use the swift-focusengine-pro skill to review my focus handling code
 ```
 
 ### Any Agent
-> Use the Apple Focus Pro skill to audit my project for focus management problems
+> Use the Swift FocusEngine Pro skill to audit my project for focus management problems
 
 ### Example Prompts
 
@@ -214,6 +203,17 @@ Built from:
 - Production tvOS apps with complex focus requirements
 - Community guides (Airbnb, Showmax, Fatbobman, Big Nerd Ranch)
 
+## Complementary Skills
+
+Swift FocusEngine Pro pairs well with these skills:
+
+- [SwiftUI Pro](https://github.com/twostraws/SwiftUI-Agent-Skill) by Paul Hudson — SwiftUI best practices and patterns
+- [Swift Concurrency Pro](https://github.com/twostraws/Swift-Concurrency-Agent-Skill) by Paul Hudson — async/await, actors, Sendable
+- [Swift Concurrency](https://github.com/AvdLee/Swift-Concurrency-Agent-Skill) by Antoine van der Lee — Swift 6 migration, data race prevention
+- [Xcode Build Optimization](https://github.com/AvdLee/Xcode-Build-Optimization-Agent-Skill) by Antoine van der Lee — build benchmarking and optimization
+
+See the [Swift Agent Skills](https://github.com/twostraws/Swift-Agent-Skills) directory for more.
+
 ## Contributing
 
 Contributions are welcome! Focus on:
@@ -229,4 +229,4 @@ Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 ## License
 
-Apple Focus Pro was created by [Michael Haviv](https://github.com/mhaviv) and is licensed under the [MIT License](LICENSE).
+Swift FocusEngine Pro was created by [Michael Haviv](https://github.com/mhaviv) and is licensed under the [MIT License](LICENSE).

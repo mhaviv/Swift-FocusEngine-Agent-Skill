@@ -1,5 +1,5 @@
 ---
-name: apple-focus-pro
+name: swift-focusengine-pro
 description: Reviews, writes, and fixes focus management code for all Apple platforms (tvOS, iOS/iPadOS, watchOS, visionOS), covering SwiftUI, UIKit, and RealityKit. Use when reading, writing, or reviewing apps that handle focus, hover, or Digital Crown navigation.
 license: MIT
 metadata:
