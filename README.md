@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="assets/logo.svg" height="120" alt="Swift FocusEngine Pro" />
+  <img src="assets/logo.svg" height="180" alt="Swift FocusEngine Pro" />
 </p>
-
-<h1 align="center">Swift FocusEngine Pro</h1>
 
 <p align="center">
   <strong>Agent skill for focus management across all Apple platforms</strong>
