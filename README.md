@@ -154,7 +154,7 @@ Use the swift-focusengine-pro skill to review my focus handling code
 
 ## What It Covers
 
-### 2,100+ lines of focus expertise across 10 reference files
+### 2,800+ lines of focus expertise across 13 reference files (v1.1)
 
 | Reference | Platform | Coverage |
 |-----------|----------|----------|
@@ -167,6 +167,9 @@ Use the swift-focusengine-pro skill to review my focus handling code
 | **focus-styling.md** | All | ButtonStyle + isFocused, FocusBorder, CABasicAnimation, CardButtonStyle |
 | **focus-restoration.md** | All | Data reload handling, safe reload pattern, row offset tracking |
 | **layout-patterns.md** | tvOS | Table-of-collections, sidebar+content, tab bar, hero+catalog |
+| **realitykit-focus.md** | visionOS | RealityKit entity hover, collision shapes, gestures, shader effects, mixed hierarchies |
+| **async-focus.md** | All | @MainActor coordination, focus after data load, NavigationStack pop, Task cancellation |
+| **accessibility-focus.md** | All | @AccessibilityFocusState, VoiceOver + focus, Full Keyboard Access, Switch Control, Reduce Motion |
 | **debugging.md** | All | UIFocusDebugger, _whyIsThisViewNotFocusable, launch arguments |
 
 ## Anti-Patterns It Catches

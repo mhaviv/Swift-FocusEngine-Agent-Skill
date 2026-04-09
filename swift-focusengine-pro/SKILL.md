@@ -4,7 +4,7 @@ description: Reviews, writes, and fixes focus management code for all Apple plat
 license: MIT
 metadata:
   author: Michael Haviv
-  version: "1.0"
+  version: "1.1"
 ---
 
 Review focus management code for correctness, modern API usage, and adherence to Apple's focus engine rules. Covers all Apple platforms. Report only genuine problems — do not nitpick or invent issues.
@@ -16,12 +16,14 @@ Review process:
    - **tvOS**: `references/swiftui-focus.md` and `references/uikit-focus.md`.
    - **iOS/iPadOS**: `references/ios-focus.md` (focus groups, halo, keyboard nav).
    - **watchOS**: `references/watchos-focus.md` (Digital Crown, sequential focus).
-   - **visionOS**: `references/visionos-focus.md` (gaze, hover effects, RealityKit).
+   - **visionOS**: `references/visionos-focus.md` (gaze, hover effects) and `references/realitykit-focus.md` (RealityKit entities, gestures, volumes).
    - For cross-platform: load all relevant references.
 3. Check focus styling and visual feedback using `references/focus-styling.md`.
 4. Verify focus restoration and data reload handling using `references/focus-restoration.md`.
 5. Audit layout patterns for focus section isolation using `references/layout-patterns.md`.
-6. Check debugging and testing practices using `references/debugging.md`.
+6. Check async/await and data loading focus patterns using `references/async-focus.md`.
+7. Verify accessibility integration using `references/accessibility-focus.md`.
+8. Check debugging and testing practices using `references/debugging.md`.
 
 If doing a partial review, load only the relevant reference files.
 
@@ -125,4 +127,7 @@ End of example.
 - `references/ios-focus.md` — iOS/iPadOS-specific: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard navigation, allowsFocus, selectionFollowsFocus.
 - `references/watchos-focus.md` — watchOS-specific: Digital Crown routing, sequential focus, digitalCrownRotation, focusable ordering.
 - `references/visionos-focus.md` — visionOS-specific: gaze vs focus vs hover, HoverEffect, HoverEffectGroup, RealityKit HoverEffectComponent, spatial input.
+- `references/realitykit-focus.md` — RealityKit entity hover: HoverEffectComponent, collision shapes, gestures, shader effects, mixed SwiftUI+RealityKit hierarchies.
+- `references/async-focus.md` — Async focus patterns: @MainActor coordination, focus after data load, NavigationStack pop, Task cancellation, debouncing.
+- `references/accessibility-focus.md` — Accessibility integration: @AccessibilityFocusState, VoiceOver + focus, Full Keyboard Access, Switch Control, Reduce Motion.
 - `references/debugging.md` — UIFocusDebugger, _whyIsThisViewNotFocusable, launch arguments, Quick Look.
