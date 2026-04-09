@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/anthropics/claude-code/refs/heads/main/marketplace/marketplace.schema.json",
   "name": "swift-focusengine-pro",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "owner": {
     "name": "Michael Haviv",
     "email": "mhaviv@users.noreply.github.com"
@@ -14,7 +14,7 @@
       "name": "swift-focusengine-pro",
       "description": "Expert focus management guidance for all Apple platforms. Covers @FocusState, UIFocusEnvironment, UIFocusGuide, focusSection, focusGroupIdentifier, HoverEffect, Digital Crown routing, and 14 critical anti-patterns that break focus navigation.",
       "repository": "https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Michael Haviv",
         "email": "mhaviv@users.noreply.github.com"

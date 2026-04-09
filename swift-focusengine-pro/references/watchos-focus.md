@@ -127,6 +127,121 @@ Suppresses the default green focus ring. Use when providing custom focus visuals
 - If the user scrolls with their finger, Crown transfers to form scrolling — **the picker may not regain focus** (known UX pain point)
 - Use `defaultFocus` to control which element initially receives crown focus
 
+## Nested Scrolling and Crown Conflicts
+
+When a `ScrollView` or `List` contains focusable controls (Picker, Stepper), the Digital Crown serves dual purposes — scrolling the container AND controlling the focused element. This creates UX conflicts.
+
+### The Problem
+
+```swift
+Form {
+    Picker("Size", selection: $size) { /* options */ }  // Crown controls this when focused
+    Stepper("Count", value: $count)                     // Or this
+    Text("Description...")                               // Crown scrolls Form when nothing focused
+    // ... more content below the fold
+}
+```
+
+When the user focuses a Picker, Crown controls the Picker. If they finger-scroll past it, the Picker may lose focus and Crown switches to scrolling. The Picker may not regain Crown focus without an explicit tap.
+
+### Solution: Explicit Focus Management
+
+```swift
+@FocusState private var focusedControl: FormControl?
+
+Form {
+    Picker("Size", selection: $size) { /* options */ }
+        .focused($focusedControl, equals: .size)
+    
+    Stepper("Count", value: $count)
+        .focused($focusedControl, equals: .count)
+    
+    // Explicit "done" to release Crown back to scrolling
+    Button("Done Editing") {
+        focusedControl = nil
+    }
+}
+```
+
+### Best Practice
+- Keep focusable controls at the top of scrollable forms
+- Provide a clear way to dismiss focus (release Crown to scroll)
+- Limit focusable controls to 2-3 per screen to avoid confusion
+- Use `defaultFocus` to set which control gets Crown initially
+
+## .digitalCrownAccessory() Patterns
+
+The Digital Crown accessory (watchOS 9+) adds a small visual indicator near the Crown area showing the current value or state.
+
+### Basic Usage
+
+```swift
+Text("Volume: \(Int(volume))%")
+    .focusable()
+    .digitalCrownRotation($volume, from: 0, through: 100)
+    .digitalCrownAccessory(.automatic)  // System decides visibility
+```
+
+### Custom Accessory Content
+
+```swift
+.digitalCrownAccessory {
+    Image(systemName: volume > 50 ? "speaker.wave.3" : "speaker.wave.1")
+        .foregroundColor(.blue)
+}
+```
+
+### Visibility Control
+
+```swift
+.digitalCrownAccessory(isVisible ? .visible : .hidden)
+```
+
+Use `.hidden` when the Crown is controlling scroll position rather than a discrete value — the accessory would be meaningless for scroll offset.
+
+## Managing Multiple Focusable Controls
+
+When a Form has 3+ focusable controls, users get confused about which one the Crown is controlling.
+
+### Pattern: Sequential Focus with Visual Feedback
+
+```swift
+enum Control: Hashable { case hours, minutes, seconds }
+@FocusState private var active: Control?
+
+VStack {
+    TimeControl(label: "Hours", value: $hours)
+        .focused($active, equals: .hours)
+        .foregroundColor(active == .hours ? .blue : .primary)
+    
+    TimeControl(label: "Minutes", value: $minutes)
+        .focused($active, equals: .minutes)
+        .foregroundColor(active == .minutes ? .blue : .primary)
+    
+    TimeControl(label: "Seconds", value: $seconds)
+        .focused($active, equals: .seconds)
+        .foregroundColor(active == .seconds ? .blue : .primary)
+}
+.toolbar {
+    ToolbarItem(placement: .confirmationAction) {
+        Button("Next") {
+            switch active {
+            case .hours: active = .minutes
+            case .minutes: active = .seconds
+            case .seconds: active = nil
+            case nil: active = .hours
+            }
+        }
+    }
+}
+```
+
+### UX Guidelines
+- The green focus ring is the primary indicator — but with multiple controls it's hard to spot
+- Add secondary color or size changes to make the active control obvious
+- Provide a toolbar button or gesture to cycle between controls
+- Consider splitting into multiple screens if you have 4+ Crown-controlled items
+
 ## Common Mistakes
 
 ### 1. Wrong modifier order

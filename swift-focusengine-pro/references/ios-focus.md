@@ -217,6 +217,216 @@ It doesn't exist there. Use `.focusSection()` (SwiftUI) or `UIFocusGuide` (UIKit
 ### 7. Not handling responder chain
 On iOS, the focused item must be inside the first responder chain. Detached views cannot receive focus.
 
+## focusedValue / focusedSceneValue (Deep Dive)
+
+These propagate data up through the focus hierarchy, enabling menus and commands to react to what's currently focused. Critical for iPad multi-window apps.
+
+### @FocusedValue — Single Values
+
+Define a key and extend FocusedValues:
+
+```swift
+struct SelectedItemKey: FocusedValueKey {
+    typealias Value = Item
+}
+
+extension FocusedValues {
+    var selectedItem: Item? {
+        get { self[SelectedItemKey.self] }
+        set { self[SelectedItemKey.self] = newValue }
+    }
+}
+```
+
+Set the value from your view:
+```swift
+List(items, selection: $selectedItem) { item in
+    ItemRow(item: item)
+}
+.focusedValue(\.selectedItem, selectedItem)
+```
+
+Read it in Commands:
+```swift
+struct MyCommands: Commands {
+    @FocusedValue(\.selectedItem) var selectedItem
+    
+    var body: some Commands {
+        CommandGroup(after: .pasteboard) {
+            Button("Duplicate") { duplicate(selectedItem!) }
+                .disabled(selectedItem == nil)  // Auto-disables when nothing focused
+        }
+    }
+}
+```
+
+### @FocusedBinding — Two-Way Bindings
+
+When commands need to modify the focused value, not just read it:
+
+```swift
+struct SelectedItemBindingKey: FocusedValueKey {
+    typealias Value = Binding<Item?>
+}
+
+// In view:
+.focusedValue(\.selectedItemBinding, $selectedItem)
+
+// In commands:
+@FocusedBinding(\.selectedItemBinding) var selectedItem
+// Now selectedItem is a Binding — can write back
+```
+
+### @FocusedObject — Observable Objects
+
+For passing observable objects through focus:
+
+```swift
+class DocumentModel: ObservableObject {
+    @Published var title: String = ""
+    @Published var content: String = ""
+}
+
+// In view:
+.focusedObject(documentModel)
+
+// In commands:
+@FocusedObject var document: DocumentModel?
+```
+
+### focusedSceneValue — Multi-Window iPad
+
+`focusedValue` only propagates within a single view hierarchy. `focusedSceneValue` propagates across the entire scene, so menu commands know which window is active:
+
+```swift
+// In each window's content view:
+.focusedSceneValue(\.activeDocument, document)
+
+// In commands — reads from whichever scene is focused:
+@FocusedValue(\.activeDocument) var activeDocument
+```
+
+**Known issue:** On UIKit-based platforms, `focusedSceneValue` can return nil with `DocumentGroup` even when a document is open. Works correctly on macOS. Workaround: use `focusedValue` with manual scene tracking.
+
+### When to Use Which
+
+| API | Scope | Use Case |
+|-----|-------|----------|
+| `focusedValue` | View hierarchy | Single-window apps, within-scene data |
+| `focusedSceneValue` | Scene-wide | Multi-window iPad, menu commands |
+| `@FocusedBinding` | View hierarchy | Commands that modify focused data |
+| `@FocusedObject` | View hierarchy | Passing observable models to commands |
+
+## Game Controller Focus
+
+When a game controller (MFi, Xbox, PlayStation, etc.) is connected via Bluetooth, its directional pad drives the same `UIFocusSystem` as keyboard arrow keys.
+
+### How It Works
+
+- D-pad directions trigger focus movement events
+- A/X button acts as select (equivalent to Return key)
+- The focus engine handles routing — no GameController framework code needed for basic navigation
+- `shouldUpdateFocus(in:)` and `didUpdateFocus(in:with:)` fire normally
+
+### Enabling Controller Support
+
+UIKit apps automatically support game controller focus navigation. For SwiftUI, ensure views are properly focusable:
+
+```swift
+// These respond to controller d-pad automatically
+Button("Play") { }
+NavigationLink("Settings") { SettingsView() }
+
+// Custom views need .focusable()
+CardView()
+    .focusable()
+```
+
+### Controller + Keyboard Coexistence
+
+Both can be connected simultaneously. The focus system handles input from whichever device the user interacts with — no conflict resolution needed.
+
+### GCController Notifications
+
+```swift
+NotificationCenter.default.addObserver(
+    forName: .GCControllerDidConnect,
+    object: nil, queue: .main
+) { notification in
+    // Controller connected — focus system activates automatically
+    // Optionally show focus-friendly UI hints
+}
+```
+
+## Stage Manager / Multi-Window Focus
+
+iPad Stage Manager (iPadOS 16+) allows multiple windows side by side. Focus implications:
+
+### Window Activation
+
+- Tapping a window makes it the key window and activates its focus system
+- Only the key window's focus system is active at a time
+- Switching windows does NOT preserve focus position in the previous window by default
+
+### Focus Across Scenes
+
+Each `WindowGroup` scene has its own focus state. Use `focusedSceneValue` to let menu commands target the active scene:
+
+```swift
+WindowGroup {
+    ContentView()
+        .focusedSceneValue(\.activeEditor, editorModel)
+}
+```
+
+### External Display
+
+When mirroring or extending to external display:
+- Focus system follows the key window, not the display
+- External display content can be focused if it's in the key window's hierarchy
+- Separate `UIScreen` windows need their own focus management
+
+## .onKeyPress and Focus
+
+`.onKeyPress` (iOS 17+) only fires on the currently focused view or its ancestors. If no view has focus, key presses are not delivered.
+
+```swift
+TextField("Search", text: $query)
+    .focused($isSearchFocused)
+    .onKeyPress(.escape) {
+        isSearchFocused = false  // Dismiss keyboard
+        return .handled
+    }
+    .onKeyPress(characters: .alphanumerics) { press in
+        // Only fires when this TextField has focus
+        return .ignored  // Let the TextField handle it normally
+    }
+```
+
+### Key Press Routing Order
+1. Focused view's `.onKeyPress` handlers (most specific)
+2. Parent views' `.onKeyPress` handlers (bubbles up)
+3. Key commands / keyboard shortcuts
+4. System shortcuts
+
+## Pointer Hover Effects on iPad
+
+iPad trackpad/mouse pointer effects are separate from keyboard focus but related:
+
+```swift
+// Hover effect (pointer/trackpad) — NOT keyboard focus
+Button("Tap me") { }
+    .hoverEffect(.lift)      // Lifts when pointer hovers
+    .hoverEffect(.highlight) // Highlights when pointer hovers
+
+// These are independent — a button can have:
+// - Pointer hover highlight (trackpad nearby)
+// - Keyboard focus ring (Tab navigated to it)
+// - Both simultaneously
+```
+
+`.hoverEffect()` on iOS responds to trackpad/mouse only (not touch). This is different from visionOS where `.hoverEffect()` responds to gaze.
+
 ## VoiceOver Focus vs UI Focus
 
 These are **completely separate systems**:

@@ -4,7 +4,7 @@ description: Reviews, writes, and fixes focus management code for all Apple plat
 license: MIT
 metadata:
   author: Michael Haviv
-  version: "1.1"
+  version: "1.2"
 ---
 
 Review focus management code for correctness, modern API usage, and adherence to Apple's focus engine rules. Covers all Apple platforms. Report only genuine problems — do not nitpick or invent issues.

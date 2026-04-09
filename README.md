@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/visionOS-1+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/Swift-5.9+-F05138?logo=swift&logoColor=white" />
   <img src="https://img.shields.io/badge/License-MIT-blue" />
-  <img src="https://img.shields.io/badge/version-1.1.0-brightgreen" />
+  <img src="https://img.shields.io/badge/version-1.2.0-brightgreen" />
 </p>
 
 <p align="center">
@@ -151,15 +151,15 @@ Use the swift-focusengine-pro skill to review my focus handling code
 
 ## What It Covers
 
-### 2,800+ lines of focus expertise across 13 reference files (v1.1)
+### 3,200+ lines of focus expertise across 13 reference files (v1.2)
 
 | Reference | Platform | Coverage |
 |-----------|----------|----------|
 | **anti-patterns.md** | All | 14 critical mistakes that break focus navigation |
 | **swiftui-focus.md** | tvOS | @FocusState, focusSection, prefersDefaultFocus, AutoFocusManager pattern |
 | **uikit-focus.md** | tvOS | UIFocusEnvironment, UIFocusGuide, shouldUpdateFocus, didUpdateFocus |
-| **ios-focus.md** | iOS/iPadOS | SwiftUI + UIKit: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard navigation |
-| **watchos-focus.md** | watchOS | SwiftUI: Digital Crown routing, sequential focus, digitalCrownRotation |
+| **ios-focus.md** | iOS/iPadOS | SwiftUI + UIKit: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard nav, focusedValue, game controller, Stage Manager |
+| **watchos-focus.md** | watchOS | SwiftUI: Digital Crown routing, sequential focus, Crown conflicts, .digitalCrownAccessory |
 | **visionos-focus.md** | visionOS | SwiftUI + UIKit + RealityKit: gaze vs hover vs focus, HoverEffect, HoverEffectComponent |
 | **focus-styling.md** | All | ButtonStyle + isFocused, FocusBorder, CABasicAnimation, CardButtonStyle |
 | **focus-restoration.md** | All | Data reload handling, safe reload pattern, row offset tracking |
