@@ -14,20 +14,22 @@
   <!-- Background -->
   <rect width="1280" height="640" fill="#1a1a2e"/>
 
-  <!-- Focus ring icon — scaled up version of logo -->
-  <g transform="translate(300, 200)">
-    <circle cx="120" cy="120" r="95" stroke="url(#ring)" stroke-width="14" fill="none" opacity="0.9"/>
-    <circle cx="120" cy="120" r="65" stroke="url(#ring)" stroke-width="7" fill="none" opacity="0.5"/>
-    <circle cx="120" cy="120" r="20" fill="url(#grad)"/>
-    <!-- Crosshair lines -->
-    <line x1="120" y1="5" x2="120" y2="45" stroke="url(#ring)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
-    <line x1="120" y1="195" x2="120" y2="235" stroke="url(#ring)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
-    <line x1="5" y1="120" x2="45" y2="120" stroke="url(#ring)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
-    <line x1="195" y1="120" x2="235" y2="120" stroke="url(#ring)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
-  </g>
+  <!-- Everything centered as a group -->
+  <g transform="translate(640, 320)">
+    <!-- Focus ring icon — offset left from center -->
+    <g transform="translate(-280, 0)">
+      <circle cx="0" cy="0" r="95" stroke="url(#ring)" stroke-width="14" fill="none" opacity="0.9"/>
+      <circle cx="0" cy="0" r="65" stroke="url(#ring)" stroke-width="7" fill="none" opacity="0.5"/>
+      <circle cx="0" cy="0" r="20" fill="url(#grad)"/>
+      <line x1="0" y1="-115" x2="0" y2="-75" stroke="url(#ring)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+      <line x1="0" y1="75" x2="0" y2="115" stroke="url(#ring)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+      <line x1="-115" y1="0" x2="-75" y2="0" stroke="url(#ring)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+      <line x1="75" y1="0" x2="115" y2="0" stroke="url(#ring)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+    </g>
 
-  <!-- Text — same layout as logo, scaled up -->
-  <text x="580" y="290" font-family="-apple-system, SF Pro Display, Helvetica Neue, sans-serif" font-size="72" font-weight="700" fill="url(#grad)">Swift FocusEngine</text>
-  <text x="580" y="370" font-family="-apple-system, SF Pro Display, Helvetica Neue, sans-serif" font-size="56" font-weight="500" fill="url(#grad)">Pro</text>
-  <text x="680" y="370" font-family="-apple-system, SF Pro Display, Helvetica Neue, sans-serif" font-size="36" font-weight="400" fill="#86868B">Agent Skill</text>
+    <!-- Text — offset right from center -->
+    <text x="-140" y="-20" font-family="-apple-system, SF Pro Display, Helvetica Neue, sans-serif" font-size="72" font-weight="700" fill="url(#grad)">Swift FocusEngine</text>
+    <text x="-140" y="60" font-family="-apple-system, SF Pro Display, Helvetica Neue, sans-serif" font-size="56" font-weight="500" fill="url(#grad)">Pro</text>
+    <text x="-40" y="60" font-family="-apple-system, SF Pro Display, Helvetica Neue, sans-serif" font-size="36" font-weight="400" fill="#86868B">Agent Skill</text>
+  </g>
 </svg>
