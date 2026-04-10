@@ -2,6 +2,15 @@
 
 All notable changes to Swift FocusEngine Pro are documented here.
 
+## [1.3.1] - 2026-04-10
+
+### Added
+- **3 new tvOS anti-patterns from production** (#15–17) — `LazyVStack` focus escape, vertical `.focusSection()`, allocation in focus callbacks
+- **VStack + inner LazyHStack pattern** — lightweight outer container stays in hierarchy, heavy content stays lazy inside each row
+- **Tab bar focus escape detection** — `didUpdateFocus` pattern for detecting when focus escapes content to tab bar
+- **VoiceOver card composition pattern** — `.accessibilityElement(children: .ignore)` with composed labels for multi-element focusable cards
+- Total anti-patterns: 24 (up from 21)
+
 ## [1.3.0] - 2026-04-10
 
 ### Added

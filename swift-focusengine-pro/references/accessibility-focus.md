@@ -161,6 +161,34 @@ CardView(show: show)
     .accessibilityAddTraits(.isButton)
 ```
 
+### Composing VoiceOver Labels on Focusable Cards
+
+Cards with multiple text elements (eyebrow, title, duration, live badge) are focusable as a single unit on tvOS. Without a composed label, VoiceOver reads each subview individually — confusing and slow.
+
+```swift
+// BAD — VoiceOver reads "News", "Breaking Story Title", "LIVE", "2:34" separately
+CardView(clip: clip)
+    .focusable()
+
+// GOOD — single composed announcement
+CardView(clip: clip)
+    .focusable()
+    .accessibilityElement(children: .ignore)  // Hide subviews from VoiceOver
+    .accessibilityLabel(composeLabel(for: clip))
+    .accessibilityAddTraits(clip.isLive ? [.isButton, .updatesFrequently] : .isButton)
+    .accessibilityHint("Press select to play")
+
+func composeLabel(for clip: Clip) -> String {
+    var parts = [clip.eyebrow, clip.title]
+    if clip.isLive { parts.append("Live") }
+    if let duration = clip.formattedDuration { parts.append(duration) }
+    if clip.isLocked { parts.append("Locked") }
+    return parts.compactMap { $0 }.joined(separator: ", ")
+}
+```
+
+This pattern is critical for media apps where cards contain 3-5 text elements plus status badges.
+
 ## Custom Actions and Focus
 
 VoiceOver custom actions let users perform secondary actions without navigating away from the focused element.

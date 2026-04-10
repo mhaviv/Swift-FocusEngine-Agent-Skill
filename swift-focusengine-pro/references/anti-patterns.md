@@ -1,6 +1,6 @@
 # Focus Anti-Patterns (All Platforms)
 
-These are critical mistakes that break focus navigation. Flag any occurrence immediately. Patterns 1-14 are primarily tvOS. Patterns 15-21 are macOS-specific.
+These are critical mistakes that break focus navigation. Flag any occurrence immediately. Patterns 1-17 are primarily tvOS. Patterns 18-24 are macOS-specific.
 
 ## Blocking (must fix before ship)
 
@@ -197,9 +197,91 @@ Workaround: Use `@FocusState` + `defaultFocus(_:_:priority:)` or set focus progr
 
 `LazyVStack` and `LazyVGrid` inside `ScrollView` have severe lag on tvOS 18 (Apple TV HD). Consider using `List` or a custom List-based grid instead.
 
+### 15. `LazyVStack` deallocates offscreen rows — focus escapes to tab bar
+
+This is the most dangerous `LazyVStack` issue on tvOS. When you scroll down, `LazyVStack` removes offscreen rows from the view hierarchy. When you swipe up quickly, the focus engine does a geometric search upward, finds no focusable views (they've been deallocated), and jumps straight to the tab bar — skipping all your content.
+
+```swift
+// BAD — rapid upward swipe escapes to tab bar
+ScrollView(.vertical) {
+    LazyVStack(spacing: 40) {
+        ForEach(categories) { category in
+            CategoryRow(category: category)  // Deallocated when offscreen!
+        }
+    }
+}
+
+// GOOD — VStack keeps all rows in hierarchy, LazyHStack stays lazy inside each row
+ScrollView(.vertical) {
+    VStack(spacing: 40) {
+        ForEach(categories) { category in
+            CategoryRow(category: category)  // Always in hierarchy
+            // Inside each CategoryRow, LazyHStack is fine for heavyweight card content
+        }
+    }
+    .focusSection()  // Also add this to prevent focus escaping to tab bar
+}
+```
+
+This works when the outer row count is bounded (config-driven Home screen with ~4-10 rows). The row containers themselves are lightweight — the expensive content (images, thumbnails) stays lazy inside each row's `LazyHStack`.
+
+For unbounded lists where `VStack` is too expensive, use `UICollectionView` with `remembersLastFocusedIndexPath` instead.
+
+### 16. Missing `.focusSection()` on vertical ScrollView containing catalog
+
+Anti-pattern #2 covers horizontal ScrollViews. Vertical ScrollViews also need `.focusSection()` to prevent focus from escaping upward to the tab bar or navigation bar.
+
+```swift
+// BAD — focus can escape to tab bar on rapid upward swipe
+ScrollView(.vertical) {
+    VStack { /* catalog rows */ }
+}
+
+// GOOD — focus contained within the catalog
+ScrollView(.vertical) {
+    VStack { /* catalog rows */ }
+}
+.focusSection()
+```
+
+Combine with `didUpdateFocus(in:with:)` on the hosting view controller to detect when focus does escape and trigger UI state changes (e.g., collapse fullscreen catalog back to normal):
+
+```swift
+override func didUpdateFocus(in context: UIFocusUpdateContext,
+                             with coordinator: UIFocusAnimationCoordinator) {
+    guard let tabBar = tabBarController?.tabBar else { return }
+    let movedToTabBar = context.nextFocusedView?.isDescendant(of: tabBar) == true
+    if movedToTabBar {
+        handleTabBarFocused()  // Collapse catalog, restore default state
+    }
+}
+```
+
+### 17. Allocating objects inside `didUpdateFocus` or `shouldUpdateFocus`
+
+Focus callbacks fire frequently during navigation. Allocating objects inside them causes per-frame garbage and can cause micro-stutters during fast scrolling.
+
+```swift
+// BAD — creates throwaway UIView on every focus update
+override func didUpdateFocus(in context: UIFocusUpdateContext,
+                             with coordinator: UIFocusAnimationCoordinator) {
+    let movedToTabBar = context.nextFocusedView?
+        .isDescendant(of: tabBarController?.tabBar ?? UIView()) == true  // UIView() allocated every time!
+}
+
+// GOOD — guard let, no allocation
+override func didUpdateFocus(in context: UIFocusUpdateContext,
+                             with coordinator: UIFocusAnimationCoordinator) {
+    guard let tabBar = tabBarController?.tabBar else { return }
+    let movedToTabBar = context.nextFocusedView?.isDescendant(of: tabBar) == true
+}
+```
+
+Same rule applies to `shouldUpdateFocus(in:)` — no `String` formatting, no array creation, no object allocation.
+
 ## macOS-Specific Anti-Patterns
 
-### 15. Not overriding `acceptsFirstResponder` on custom NSView
+### 18. Not overriding `acceptsFirstResponder` on custom NSView
 
 Custom NSView subclasses default to `acceptsFirstResponder = false`. The view silently ignores Tab navigation and `makeFirstResponder` calls. This is the #1 macOS focus bug.
 
@@ -216,7 +298,7 @@ class MyCustomView: NSView {
 }
 ```
 
-### 16. Incomplete key view loop
+### 19. Incomplete key view loop
 
 If the last view's `nextKeyView` doesn't loop back to the first view, Tab navigation stops working after reaching the end. Shift-Tab from the first view also fails.
 
@@ -233,7 +315,7 @@ buttonC.nextKeyView = textField
 
 Alternative: Set `window.recalculatesKeyViewLoop = true` and let the system manage the loop geometrically. But never mix manual `nextKeyView` with `recalculatesKeyViewLoop`.
 
-### 17. Calling `becomeFirstResponder()` directly
+### 20. Calling `becomeFirstResponder()` directly
 
 Never call `becomeFirstResponder()` on a view directly. It's meant to be called by the system during `makeFirstResponder(_:)`.
 
@@ -247,7 +329,7 @@ view.window?.makeFirstResponder(myTextField)
 
 Direct calls skip `resignFirstResponder()` on the current first responder, which can leave the previous view in a bad state (e.g., text editing still active).
 
-### 18. NSPanel stealing focus from main window
+### 21. NSPanel stealing focus from main window
 
 Panels (inspectors, tool windows) default to becoming the key window, stealing focus from the document. Users lose their cursor position in text editors.
 
@@ -261,7 +343,7 @@ panel.becomesKeyOnlyIfNeeded = true
 panel.orderFront(nil)  // Show without stealing focus
 ```
 
-### 19. Not restoring focus after sheet dismissal
+### 22. Not restoring focus after sheet dismissal
 
 When an NSAlert or sheet is dismissed, focus should return to the view that was focused before the sheet appeared. SwiftUI handles this automatically, but AppKit requires manual tracking.
 
@@ -276,7 +358,7 @@ alert.beginSheetModal(for: window) { _ in
 }
 ```
 
-### 20. Using `.focusable()` on NSViewRepresentable without bridging
+### 23. Using `.focusable()` on NSViewRepresentable without bridging
 
 Adding `.focusable()` to a SwiftUI view wrapping AppKit via `NSViewRepresentable` creates a SwiftUI focus layer that doesn't coordinate with AppKit's first responder. The AppKit view handles its own focus.
 
@@ -296,7 +378,7 @@ struct MyAppKitView: NSViewRepresentable {
 }
 ```
 
-### 21. Not disabling menu items when no document is focused
+### 24. Not disabling menu items when no document is focused
 
 Menu items that depend on `focusedValue` but don't check for nil remain enabled when no window is key (e.g., all windows minimized), leading to crashes or no-ops.
 

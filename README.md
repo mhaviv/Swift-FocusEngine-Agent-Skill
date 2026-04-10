@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/macOS-12+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/Swift-5.9+-F05138?logo=swift&logoColor=white" />
   <img src="https://img.shields.io/badge/License-MIT-blue" />
-  <img src="https://img.shields.io/badge/version-1.3.0-brightgreen" />
+  <img src="https://img.shields.io/badge/version-1.3.1-brightgreen" />
 </p>
 
 <p align="center">
@@ -171,11 +171,11 @@ Use the swift-focusengine-pro skill to review my focus handling code
 
 ## What It Covers
 
-### 4,400+ lines of focus expertise across 14 reference files (v1.3)
+### 4,600+ lines of focus expertise across 14 reference files (v1.3)
 
 | Reference | Platform | Coverage |
 |-----------|----------|----------|
-| **anti-patterns.md** | All | 21 critical mistakes: 14 tvOS + 7 macOS-specific anti-patterns |
+| **anti-patterns.md** | All | 24 critical mistakes: 17 tvOS + 7 macOS-specific anti-patterns |
 | **swiftui-focus.md** | tvOS | @FocusState, focusSection, prefersDefaultFocus, AutoFocusManager pattern |
 | **uikit-focus.md** | tvOS | UIFocusEnvironment, UIFocusGuide, shouldUpdateFocus, didUpdateFocus |
 | **ios-focus.md** | iOS/iPadOS | SwiftUI + UIKit: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard nav, focusedValue, game controller, Stage Manager |
@@ -212,15 +212,21 @@ Use the swift-focusengine-pro skill to review my focus handling code
 13. **`prefersDefaultFocus` inside ScrollView** — may not work as expected, use `defaultFocus` instead
 14. **LazyVStack/LazyVGrid performance on Apple TV HD** — A8 chip can't handle lazy layout recalculation during fast scrolling
 
+### tvOS production patterns
+
+15. **`LazyVStack` deallocates offscreen rows** — rapid upward swipe causes focus to jump to tab bar, skipping content
+16. **Missing `.focusSection()` on vertical ScrollView** — focus escapes upward to tab bar/nav bar
+17. **Allocating objects in `didUpdateFocus`/`shouldUpdateFocus`** — per-frame garbage causes micro-stutters
+
 ### macOS-specific
 
-15. **Not overriding `acceptsFirstResponder` on custom NSView** — view is invisible to Tab navigation
-16. **Incomplete key view loop** — Tab stops working after reaching the last view
-17. **Calling `becomeFirstResponder()` directly** — bypasses resign/become handshake, use `window.makeFirstResponder`
-18. **NSPanel stealing focus** — inspector panels take focus from document window, use `becomesKeyOnlyIfNeeded`
-19. **Not restoring focus after sheet/alert** — focus lost to window instead of returning to original view
-20. **`.focusable()` on NSViewRepresentable** — creates double focus layer conflicting with AppKit
-21. **Menu items not checking for nil focusedValue** — crashes when no window is key
+18. **Not overriding `acceptsFirstResponder` on custom NSView** — view is invisible to Tab navigation
+19. **Incomplete key view loop** — Tab stops working after reaching the last view
+20. **Calling `becomeFirstResponder()` directly** — bypasses resign/become handshake, use `window.makeFirstResponder`
+21. **NSPanel stealing focus** — inspector panels take focus from document window, use `becomesKeyOnlyIfNeeded`
+22. **Not restoring focus after sheet/alert** — focus lost to window instead of returning to original view
+23. **`.focusable()` on NSViewRepresentable** — creates double focus layer conflicting with AppKit
+24. **Menu items not checking for nil focusedValue** — crashes when no window is key
 
 ## FAQ
 

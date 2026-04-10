@@ -8,12 +8,12 @@ Each row is a table cell containing a horizontal collection view. This is the mo
 
 ```swift
 ScrollView(.vertical) {
-    VStack(spacing: 40) {
+    VStack(spacing: 40) {  // VStack, NOT LazyVStack — see warning below
         ForEach(categories) { category in
             VStack(alignment: .leading) {
                 Text(category.title).font(.headline)
                 ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 20) {
+                    LazyHStack(spacing: 20) {  // LazyHStack is fine — heavy content stays lazy
                         ForEach(category.items) { item in
                             Button { select(item) } label: {
                                 PosterCard(item: item)
@@ -27,7 +27,22 @@ ScrollView(.vertical) {
         }
     }
 }
+.focusSection()  // Prevents focus escaping upward to tab bar
 ```
+
+### Why VStack, NOT LazyVStack
+
+**`LazyVStack` deallocates offscreen rows.** On tvOS, scrolling is focus-driven. When the user swipes up quickly, the focus engine searches upward geometrically — but the offscreen row views have been removed from the hierarchy. Focus finds nothing and jumps to the tab bar, skipping all content.
+
+**`VStack` keeps all rows in the hierarchy.** The row containers are lightweight (just a title label + ScrollView wrapper). The expensive content (poster images, thumbnails) stays lazy inside each row's `LazyHStack`. This gives you the best of both worlds: focus-safe navigation with lazy-loaded heavy content.
+
+Use `VStack` when:
+- Row count is bounded (config-driven, typically 4-10 rows)
+- Row containers are lightweight (the heavy content is inside lazy inner containers)
+
+Use `UICollectionView` with `remembersLastFocusedIndexPath` when:
+- Row count is unbounded (infinite scroll, feeds)
+- VStack would load too much content eagerly
 
 ### UIKit
 
@@ -131,6 +146,30 @@ For custom tab bar (Fox Weather SideTabBar pattern):
 - Use `@FocusState` to track which tab is focused
 - Expand/collapse on focus enter/leave
 - Use `.onExitCommand` to bring focus back to tabs
+
+### Tab Bar Focus Escape Detection (UIKit)
+
+When hosting SwiftUI views inside UIKit tab bar controllers, detect when focus escapes from content to the tab bar. This is essential for fullscreen catalog views that need to collapse when the user navigates back to tabs:
+
+```swift
+class SwiftUIHomeViewController: UIHostingController<HomeView> {
+    override func didUpdateFocus(in context: UIFocusUpdateContext,
+                                 with coordinator: UIFocusAnimationCoordinator) {
+        super.didUpdateFocus(in: context, with: coordinator)
+        guard let tabBar = tabBarController?.tabBar else { return }
+        let movedToTabBar = context.nextFocusedView?.isDescendant(of: tabBar) == true
+        if movedToTabBar {
+            // Collapse fullscreen catalog, restore default hero state
+            viewModel.handleTabBarFocused()
+        }
+    }
+}
+```
+
+Key rules:
+- Use `guard let` — never allocate fallback objects in focus callbacks (see anti-pattern #17)
+- Check `isDescendant(of:)` — don't compare view identity directly, tab bar items are nested
+- Call on `super` first to preserve default behavior
 
 ### UIKit
 
