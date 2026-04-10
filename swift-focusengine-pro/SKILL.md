@@ -5,6 +5,24 @@ license: MIT
 metadata:
   author: Michael Haviv
   version: "1.2"
+  repository: https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill
+  homepage: https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill
+  keywords:
+    - swift
+    - swiftui
+    - uikit
+    - tvos
+    - ios
+    - ipados
+    - watchos
+    - visionos
+    - macos
+    - focus-engine
+    - focus-management
+    - apple
+    - realitykit
+    - accessibility
+    - agent-skill
 ---
 
 Review focus management code for correctness, modern API usage, and adherence to Apple's focus engine rules. Covers all Apple platforms. Report only genuine problems — do not nitpick or invent issues.

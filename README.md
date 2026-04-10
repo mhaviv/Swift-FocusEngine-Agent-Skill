@@ -39,6 +39,7 @@ Works with [Claude Code](https://claude.ai/code), [Codex](https://openai.com/cod
 - [Using](#using)
 - [What It Covers](#what-it-covers)
 - [Anti-Patterns It Catches](#anti-patterns-it-catches)
+- [FAQ](#faq)
 - [Sources](#sources)
 - [Complementary Skills](#complementary-skills)
 - [Contributing](#contributing)
@@ -190,6 +191,128 @@ Use the swift-focusengine-pro skill to review my focus handling code
 12. **Missing `prepareForReuse()` cleanup for focus state** — stale focus styling on reused cells
 13. **`prefersDefaultFocus` inside ScrollView** — may not work as expected, use `defaultFocus` instead
 14. **LazyVStack/LazyVGrid performance on Apple TV HD** — A8 chip can't handle lazy layout recalculation during fast scrolling
+
+## FAQ
+
+<details>
+<summary><strong>How do I set initial focus on a specific view in tvOS?</strong></summary>
+
+In SwiftUI, use `defaultFocus(_:_:)` or `prefersDefaultFocus`. In UIKit, override `preferredFocusEnvironments` on the parent view controller. See [swiftui-focus.md](swift-focusengine-pro/references/swiftui-focus.md) and [uikit-focus.md](swift-focusengine-pro/references/uikit-focus.md).
+</details>
+
+<details>
+<summary><strong>Focus resets after reloadData — how do I keep focus position?</strong></summary>
+
+Use `remembersLastFocusedIndexPath` or the safe reload pattern that locks focus before reloading. See [focus-restoration.md](swift-focusengine-pro/references/focus-restoration.md).
+</details>
+
+<details>
+<summary><strong>Focus jumps to the wrong row when I swipe right</strong></summary>
+
+The focus engine is geometric, not hierarchical. Add `.focusSection()` to horizontal ScrollViews to keep focus within rows. See [anti-patterns.md](swift-focusengine-pro/references/anti-patterns.md) (pattern #2).
+</details>
+
+<details>
+<summary><strong>How do I programmatically move focus?</strong></summary>
+
+You cannot directly set focus. Override `preferredFocusEnvironments` to return the target, then call `setNeedsFocusUpdate()` + `updateFocusIfNeeded()` on the correct focus environment. See [uikit-focus.md](swift-focusengine-pro/references/uikit-focus.md).
+</details>
+
+<details>
+<summary><strong>UIFocusGuide not working</strong></summary>
+
+Common causes: guide not added to the view hierarchy, `preferredFocusEnvironments` not set on the guide, or incorrect sizing/positioning. Focus guides bridge empty space between focusable views. See [uikit-focus.md](swift-focusengine-pro/references/uikit-focus.md).
+</details>
+
+<details>
+<summary><strong>What does focusSection() actually do?</strong></summary>
+
+It creates a focus group that the engine treats as a contiguous region, preventing focus from skipping over the section to items in other rows. Essential for horizontal ScrollViews in vertical layouts. See [swiftui-focus.md](swift-focusengine-pro/references/swiftui-focus.md).
+</details>
+
+<details>
+<summary><strong>How do I debug focus issues on tvOS?</strong></summary>
+
+Use `UIFocusDebugger.checkFocusability(for:)` in the debugger, `_whyIsThisViewNotFocusable` on any UIView, and the `UIFocusLoggingEnabled` launch argument. See [debugging.md](swift-focusengine-pro/references/debugging.md).
+</details>
+
+<details>
+<summary><strong>Why does .disabled() break focus on Apple TV?</strong></summary>
+
+On tvOS, `.disabled()` removes the view entirely from the focus chain. Use `.allowsHitTesting(false)` instead to keep it focusable but non-interactive. See [anti-patterns.md](swift-focusengine-pro/references/anti-patterns.md) (pattern #1).
+</details>
+
+<details>
+<summary><strong>@FocusState not dismissing keyboard on iOS</strong></summary>
+
+Setting `@FocusState` to `nil` should dismiss the keyboard, but it can fail inside sheets or NavigationStack. See [ios-focus.md](swift-focusengine-pro/references/ios-focus.md) for workarounds.
+</details>
+
+<details>
+<summary><strong>How do I move focus between TextFields with the keyboard next button?</strong></summary>
+
+Use `@FocusState` with an enum representing each field, then set the next case in `onSubmit`. See [ios-focus.md](swift-focusengine-pro/references/ios-focus.md).
+</details>
+
+<details>
+<summary><strong>How does keyboard focus navigation work on iPad?</strong></summary>
+
+iOS 15+ added UIFocusSystem support for hardware keyboards. Opt in with `UIFocusHaloEffect`, `focusGroupIdentifier`, and `focusEffect`. See [ios-focus.md](swift-focusengine-pro/references/ios-focus.md).
+</details>
+
+<details>
+<summary><strong>How does focus work across multiple windows on iPad with Stage Manager?</strong></summary>
+
+Each window scene has its own focus state. Use `focusedSceneValue` to propagate focus information across scenes. See [ios-focus.md](swift-focusengine-pro/references/ios-focus.md) (Stage Manager section).
+</details>
+
+<details>
+<summary><strong>How do I use focusedSceneValue for multi-window iPad apps?</strong></summary>
+
+Define a `FocusedValueKey`, set values with `.focusedSceneValue()`, and read them with `@FocusedValue` in your menu bar or toolbar commands. See [ios-focus.md](swift-focusengine-pro/references/ios-focus.md).
+</details>
+
+<details>
+<summary><strong>Digital Crown rotation stops working after reordering view modifiers</strong></summary>
+
+The `.digitalCrownRotation()` modifier is order-sensitive. It must be applied in the correct position relative to other modifiers. See [watchos-focus.md](swift-focusengine-pro/references/watchos-focus.md).
+</details>
+
+<details>
+<summary><strong>How do I handle nested scrolling conflicts with Digital Crown?</strong></summary>
+
+When a ScrollView contains a Digital Crown control, the Crown drives both scrolling and the control. Use explicit `@FocusState` to determine which element owns the Crown. See [watchos-focus.md](swift-focusengine-pro/references/watchos-focus.md).
+</details>
+
+<details>
+<summary><strong>What's the difference between hover and focus on visionOS?</strong></summary>
+
+visionOS uses eye tracking for hover (`.hoverEffect()`) and indirect input for focus. They are separate systems. Gaze creates hover highlights, but tap gestures are needed for activation. See [visionos-focus.md](swift-focusengine-pro/references/visionos-focus.md).
+</details>
+
+<details>
+<summary><strong>How do I customize hover effects in visionOS?</strong></summary>
+
+Use `HoverEffectComponent` on RealityKit entities with styles: default, spotlight, shader, or highlight. For SwiftUI views, use `.hoverEffect(.highlight)` or `.hoverEffect(.lift)`. See [realitykit-focus.md](swift-focusengine-pro/references/realitykit-focus.md).
+</details>
+
+<details>
+<summary><strong>How does focus work in Mac Catalyst apps?</strong></summary>
+
+macOS coverage is coming soon. Currently the skill covers tvOS, iOS/iPadOS, watchOS, and visionOS.
+</details>
+
+<details>
+<summary><strong>How do I handle keyboard focus in a macOS SwiftUI app?</strong></summary>
+
+macOS coverage is coming soon. Currently the skill covers tvOS, iOS/iPadOS, watchOS, and visionOS.
+</details>
+
+<details>
+<summary><strong>Focus works in simulator but not on device (or vice versa)</strong></summary>
+
+The focus engine behaves differently between Xcode Simulator and physical hardware, especially for tvOS remote gestures and visionOS eye tracking. Always test focus on real devices. See [debugging.md](swift-focusengine-pro/references/debugging.md).
+</details>
 
 ## Sources
 
