@@ -1,10 +1,10 @@
 # Swift FocusEngine Pro
 
-> AI agent skill for correct focus management code on Apple platforms (tvOS, iOS/iPadOS, watchOS, visionOS, macOS).
+> AI agent skill for correct focus management code on all Apple platforms (tvOS, iOS/iPadOS, watchOS, visionOS, macOS).
 
 ## What It Is
 
-Swift FocusEngine Pro is a free, open-source agent skill that helps AI coding assistants write correct focus management code for Apple platforms. It covers SwiftUI, UIKit, and RealityKit — targeting the mistakes LLMs actually make with Apple's focus engine.
+Swift FocusEngine Pro is a free, open-source agent skill that helps AI coding assistants write correct focus management code for Apple platforms. It covers SwiftUI, UIKit, AppKit, and RealityKit — targeting the mistakes LLMs actually make with Apple's focus engine.
 
 Works with Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, and any tool supporting the Agent Skills format (agentskills.io).
 
@@ -23,7 +23,7 @@ npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill s
 
 ## What It Covers
 
-3,200+ lines across 13 reference files: anti-patterns, SwiftUI focus (tvOS), UIKit focus (tvOS), iOS/iPadOS focus, watchOS focus, visionOS focus, RealityKit focus, focus styling, focus restoration, layout patterns, async focus coordination, accessibility focus, and debugging tools.
+3,500+ lines across 14 reference files: anti-patterns, SwiftUI focus (tvOS), UIKit focus (tvOS), iOS/iPadOS focus, watchOS focus, visionOS focus, macOS focus, RealityKit focus, focus styling, focus restoration, layout patterns, async focus coordination, accessibility focus, and debugging tools.
 
 ## Key Links
 

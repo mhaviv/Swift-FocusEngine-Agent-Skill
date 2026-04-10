@@ -1,10 +1,10 @@
 ---
 name: swift-focusengine-pro
-description: Reviews, writes, and fixes focus management code for all Apple platforms (tvOS, iOS/iPadOS, watchOS, visionOS), covering SwiftUI, UIKit, and RealityKit. Use when reading, writing, or reviewing apps that handle focus, hover, or Digital Crown navigation.
+description: Reviews, writes, and fixes focus management code for all Apple platforms (tvOS, iOS/iPadOS, watchOS, visionOS, macOS), covering SwiftUI, UIKit, AppKit, and RealityKit. Use when reading, writing, or reviewing apps that handle focus, hover, key view loops, or Digital Crown navigation.
 license: MIT
 metadata:
   author: Michael Haviv
-  version: "1.2"
+  version: "1.3"
   repository: https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill
   homepage: https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill
   keywords:
@@ -35,6 +35,7 @@ Review process:
    - **iOS/iPadOS**: `references/ios-focus.md` (focus groups, halo, keyboard nav).
    - **watchOS**: `references/watchos-focus.md` (Digital Crown, sequential focus).
    - **visionOS**: `references/visionos-focus.md` (gaze, hover effects) and `references/realitykit-focus.md` (RealityKit entities, gestures, volumes).
+   - **macOS**: `references/macos-focus.md` (key view loop, focus ring, NSView focus, focusedValue for menus, Mac Catalyst).
    - For cross-platform: load all relevant references.
 3. Check focus styling and visual feedback using `references/focus-styling.md`.
 4. Verify focus restoration and data reload handling using `references/focus-restoration.md`.
@@ -77,6 +78,15 @@ If doing a partial review, load only the relevant reference files.
 - `@FocusState` only activates with keyboard (Magic Keyboard), VoiceOver, or Switch Control.
 - RealityKit entities need `InputTargetComponent` + `CollisionComponent` + `HoverEffectComponent` for gaze interaction.
 - `.focusEffectDisabled()` hides keyboard focus ring; `.hoverEffectDisabled()` disables gaze hover — they are different.
+
+### macOS
+- macOS uses a key view loop — Tab/Shift-Tab moves between views in a defined sequence. This is NOT spatial like tvOS.
+- Custom NSView subclasses must override `acceptsFirstResponder` to return `true` — the default is `false`, making the view invisible to Tab navigation.
+- `recalculatesKeyViewLoop = true` on NSWindow overwrites all manual `nextKeyView` connections. Pick one approach.
+- Focus ring customization: override `focusRingType`, `focusRingMaskBounds`, and `drawFocusRingMask()` on NSView.
+- `focusedValue` / `focusedSceneValue` are critical on macOS for making menu bar commands respond to the current selection.
+- Mac Catalyst: inherits iPad `UIFocusSystem`. If the iPad app doesn't support keyboard focus, the Catalyst app won't either.
+- Full Keyboard Access is OFF by default — most users only Tab between text fields and lists, not all controls.
 
 ### All Platforms
 - Never add `.focusable()` to Buttons or NavigationLinks — they are already focusable. Adding it creates a double-focus wrapper.
@@ -145,6 +155,7 @@ End of example.
 - `references/ios-focus.md` — iOS/iPadOS-specific: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard navigation, allowsFocus, selectionFollowsFocus.
 - `references/watchos-focus.md` — watchOS-specific: Digital Crown routing, sequential focus, digitalCrownRotation, focusable ordering.
 - `references/visionos-focus.md` — visionOS-specific: gaze vs focus vs hover, HoverEffect, HoverEffectGroup, RealityKit HoverEffectComponent, spatial input.
+- `references/macos-focus.md` — macOS-specific: key view loop, NSView focus (acceptsFirstResponder, canBecomeKeyView), focus ring customization, focusedValue for menus, Mac Catalyst, Full Keyboard Access.
 - `references/realitykit-focus.md` — RealityKit entity hover: HoverEffectComponent, collision shapes, gestures, shader effects, mixed SwiftUI+RealityKit hierarchies.
 - `references/async-focus.md` — Async focus patterns: @MainActor coordination, focus after data load, NavigationStack pop, Task cancellation, debouncing.
 - `references/accessibility-focus.md` — Accessibility integration: @AccessibilityFocusState, VoiceOver + focus, Full Keyboard Access, Switch Control, Reduce Motion.

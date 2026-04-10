@@ -1,7 +1,7 @@
 {
   "name": "swift-focusengine-pro",
-  "version": "1.2.0",
-  "description": "Expert focus management guidance for tvOS, iOS/iPadOS, watchOS, and visionOS. Covers SwiftUI, UIKit, and RealityKit focus APIs, 14 critical anti-patterns, and debugging techniques.",
+  "version": "1.3.0",
+  "description": "Expert focus management guidance for tvOS, iOS/iPadOS, watchOS, visionOS, and macOS. Covers SwiftUI, UIKit, AppKit, and RealityKit focus APIs, 14 critical anti-patterns, and debugging techniques.",
   "author": {
     "name": "Michael Haviv",
     "email": "mhaviv@users.noreply.github.com"
@@ -9,9 +9,9 @@
   "repository": "https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill",
   "license": "MIT",
   "keywords": [
-    "swift", "swiftui", "uikit", "tvos", "ios", "watchos", "visionos",
+    "swift", "swiftui", "uikit", "appkit", "tvos", "ios", "watchos", "visionos", "macos",
     "focus", "focus-engine", "focus-management", "apple",
-    "realitykit", "hover-effect", "accessibility"
+    "realitykit", "hover-effect", "accessibility", "key-view-loop", "mac-catalyst"
   ],
   "skills": [
     "./swift-focusengine-pro"

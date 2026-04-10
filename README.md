@@ -9,9 +9,10 @@
   <img src="https://img.shields.io/badge/iOS-15+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/watchOS-8+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/visionOS-1+-000000?logo=apple" />
+  <img src="https://img.shields.io/badge/macOS-12+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/Swift-5.9+-F05138?logo=swift&logoColor=white" />
   <img src="https://img.shields.io/badge/License-MIT-blue" />
-  <img src="https://img.shields.io/badge/version-1.2.0-brightgreen" />
+  <img src="https://img.shields.io/badge/version-1.3.0-brightgreen" />
 </p>
 
 <p align="center">
@@ -25,7 +26,7 @@
 
 ---
 
-Swift FocusEngine Pro is a free, open-source agent skill that helps AI coding assistants write correct focus management code for **tvOS**, **iOS/iPadOS**, **watchOS**, and **visionOS**. It covers SwiftUI, UIKit, and RealityKit — targeting the mistakes LLMs actually make with Apple's focus engine.
+Swift FocusEngine Pro is a free, open-source agent skill that helps AI coding assistants write correct focus management code for **tvOS**, **iOS/iPadOS**, **watchOS**, **visionOS**, and **macOS**. It covers SwiftUI, UIKit, AppKit, and RealityKit — targeting the mistakes LLMs actually make with Apple's focus engine.
 
 Built from real-world experience shipping production tvOS apps, Apple developer documentation, WWDC sessions (2017-2025), and community best practices from Airbnb, Showmax, and others.
 
@@ -50,6 +51,7 @@ Works with [Claude Code](https://claude.ai/code), [Codex](https://openai.com/cod
 - **tvOS developers** — building apps where every interaction depends on the focus engine working correctly
 - **iOS/iPadOS developers** — adding keyboard, game controller, or external display support with focus groups
 - **visionOS developers** — navigating the differences between gaze, hover, and focus in spatial computing
+- **macOS developers** — building keyboard-navigable apps with key view loops, focus rings, and menu commands
 
 ## Why Use an Agent Skill for Focus?
 
@@ -149,10 +151,11 @@ Use the swift-focusengine-pro skill to review my focus handling code
 - *"I added .disabled() to a button but now focus skips over the entire section"*
 - *"What's the difference between gaze and focus on visionOS?"*
 - *"My Digital Crown rotation stopped working after I reordered my view modifiers"*
+- *"How do I make menu bar commands respond to whichever document window is focused?"*
 
 ## What It Covers
 
-### 3,200+ lines of focus expertise across 13 reference files (v1.2)
+### 3,500+ lines of focus expertise across 14 reference files (v1.3)
 
 | Reference | Platform | Coverage |
 |-----------|----------|----------|
@@ -165,6 +168,7 @@ Use the swift-focusengine-pro skill to review my focus handling code
 | **focus-styling.md** | All | ButtonStyle + isFocused, FocusBorder, CABasicAnimation, CardButtonStyle |
 | **focus-restoration.md** | All | Data reload handling, safe reload pattern, row offset tracking |
 | **layout-patterns.md** | tvOS | Table-of-collections, sidebar+content, tab bar, hero+catalog |
+| **macos-focus.md** | macOS | AppKit + SwiftUI: key view loop, focus ring, NSView focus APIs, focusedValue for menus, Mac Catalyst, Full Keyboard Access |
 | **realitykit-focus.md** | visionOS | RealityKit entity hover, collision shapes, gestures, shader effects, mixed hierarchies |
 | **async-focus.md** | All | @MainActor coordination, focus after data load, NavigationStack pop, Task cancellation |
 | **accessibility-focus.md** | All | @AccessibilityFocusState, VoiceOver + focus, Full Keyboard Access, Switch Control, Reduce Motion |
@@ -299,13 +303,13 @@ Use `HoverEffectComponent` on RealityKit entities with styles: default, spotligh
 <details>
 <summary><strong>How does focus work in Mac Catalyst apps?</strong></summary>
 
-macOS coverage is coming soon. Currently the skill covers tvOS, iOS/iPadOS, watchOS, and visionOS.
+Mac Catalyst inherits iPad's `UIFocusSystem` — `UIFocusHaloEffect` renders as a macOS focus ring, and `focusGroupIdentifier` maps to Tab navigation groups. If your iPad app doesn't support keyboard focus, neither will the Catalyst version. See [macos-focus.md](swift-focusengine-pro/references/macos-focus.md) (Mac Catalyst section).
 </details>
 
 <details>
 <summary><strong>How do I handle keyboard focus in a macOS SwiftUI app?</strong></summary>
 
-macOS coverage is coming soon. Currently the skill covers tvOS, iOS/iPadOS, watchOS, and visionOS.
+Use `@FocusState` (same as iOS) and `.focusable()` for custom views. macOS focus is always active — no hardware keyboard requirement. For menu bar integration, use `focusedValue` / `focusedSceneValue`. See [macos-focus.md](swift-focusengine-pro/references/macos-focus.md).
 </details>
 
 <details>
@@ -342,7 +346,7 @@ See the [Swift Agent Skills](https://github.com/twostraws/Swift-Agent-Skills) di
 Contributions are welcome! Focus on:
 
 - **Edge cases** — non-obvious focus behaviors that catch developers off guard
-- **New platform APIs** — iOS 19, tvOS 19, visionOS 3, watchOS 12 additions
+- **New platform APIs** — iOS 19, tvOS 19, visionOS 3, watchOS 12, macOS 16 additions
 - **Real-world patterns** — battle-tested solutions from production apps
 - **Anti-patterns** — mistakes LLMs commonly generate
 
