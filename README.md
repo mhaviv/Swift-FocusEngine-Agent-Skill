@@ -155,24 +155,24 @@ Use the swift-focusengine-pro skill to review my focus handling code
 
 ## What It Covers
 
-### 3,500+ lines of focus expertise across 14 reference files (v1.3)
+### 4,400+ lines of focus expertise across 14 reference files (v1.3)
 
 | Reference | Platform | Coverage |
 |-----------|----------|----------|
-| **anti-patterns.md** | All | 14 critical mistakes that break focus navigation |
+| **anti-patterns.md** | All | 21 critical mistakes: 14 tvOS + 7 macOS-specific anti-patterns |
 | **swiftui-focus.md** | tvOS | @FocusState, focusSection, prefersDefaultFocus, AutoFocusManager pattern |
 | **uikit-focus.md** | tvOS | UIFocusEnvironment, UIFocusGuide, shouldUpdateFocus, didUpdateFocus |
 | **ios-focus.md** | iOS/iPadOS | SwiftUI + UIKit: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard nav, focusedValue, game controller, Stage Manager |
 | **watchos-focus.md** | watchOS | SwiftUI: Digital Crown routing, sequential focus, Crown conflicts, .digitalCrownAccessory |
 | **visionos-focus.md** | visionOS | SwiftUI + UIKit + RealityKit: gaze vs hover vs focus, HoverEffect, HoverEffectComponent |
-| **focus-styling.md** | All | ButtonStyle + isFocused, FocusBorder, CABasicAnimation, CardButtonStyle |
+| **focus-styling.md** | All | ButtonStyle + isFocused, FocusBorder, CABasicAnimation, CardButtonStyle, macOS focus ring styling |
 | **focus-restoration.md** | All | Data reload handling, safe reload pattern, row offset tracking |
 | **layout-patterns.md** | tvOS | Table-of-collections, sidebar+content, tab bar, hero+catalog |
 | **macos-focus.md** | macOS | AppKit + SwiftUI: key view loop, focus ring, NSView focus APIs, focusedValue for menus, Mac Catalyst, Full Keyboard Access |
 | **realitykit-focus.md** | visionOS | RealityKit entity hover, collision shapes, gestures, shader effects, mixed hierarchies |
 | **async-focus.md** | All | @MainActor coordination, focus after data load, NavigationStack pop, Task cancellation |
 | **accessibility-focus.md** | All | @AccessibilityFocusState, VoiceOver + focus, Full Keyboard Access, Switch Control, Reduce Motion |
-| **debugging.md** | All | UIFocusDebugger, _whyIsThisViewNotFocusable, launch arguments |
+| **debugging.md** | All | UIFocusDebugger, _whyIsThisViewNotFocusable, launch arguments, macOS first responder debugging |
 
 ## Anti-Patterns It Catches
 
@@ -195,6 +195,16 @@ Use the swift-focusengine-pro skill to review my focus handling code
 12. **Missing `prepareForReuse()` cleanup for focus state** — stale focus styling on reused cells
 13. **`prefersDefaultFocus` inside ScrollView** — may not work as expected, use `defaultFocus` instead
 14. **LazyVStack/LazyVGrid performance on Apple TV HD** — A8 chip can't handle lazy layout recalculation during fast scrolling
+
+### macOS-specific
+
+15. **Not overriding `acceptsFirstResponder` on custom NSView** — view is invisible to Tab navigation
+16. **Incomplete key view loop** — Tab stops working after reaching the last view
+17. **Calling `becomeFirstResponder()` directly** — bypasses resign/become handshake, use `window.makeFirstResponder`
+18. **NSPanel stealing focus** — inspector panels take focus from document window, use `becomesKeyOnlyIfNeeded`
+19. **Not restoring focus after sheet/alert** — focus lost to window instead of returning to original view
+20. **`.focusable()` on NSViewRepresentable** — creates double focus layer conflicting with AppKit
+21. **Menu items not checking for nil focusedValue** — crashes when no window is key
 
 ## FAQ
 

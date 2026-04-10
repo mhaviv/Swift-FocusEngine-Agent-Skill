@@ -146,10 +146,10 @@ End of example.
 
 ## References
 
-- `references/anti-patterns.md` — Critical mistakes that break tvOS focus navigation.
+- `references/anti-patterns.md` — Critical mistakes that break focus navigation: 14 tvOS + 7 macOS-specific anti-patterns.
 - `references/swiftui-focus.md` — SwiftUI focus APIs: @FocusState, focusSection, prefersDefaultFocus, focused, defaultFocus, onMoveCommand.
 - `references/uikit-focus.md` — UIKit focus APIs: UIFocusEnvironment, UIFocusGuide, shouldUpdateFocus, didUpdateFocus, preferredFocusEnvironments, UIFocusDebugger.
-- `references/focus-styling.md` — Focus visual feedback: ButtonStyle with isFocused, FocusBorder, hover effects, scale/shadow animations.
+- `references/focus-styling.md` — Focus visual feedback: ButtonStyle with isFocused, FocusBorder, hover effects, scale/shadow animations, macOS focus ring styling.
 - `references/focus-restoration.md` — Handling focus after data reloads, navigation, and async updates.
 - `references/layout-patterns.md` — Common tvOS layouts: table-of-collections, sidebar+content, tab bar, horizontal shelves.
 - `references/ios-focus.md` — iOS/iPadOS-specific: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard navigation, allowsFocus, selectionFollowsFocus.
@@ -159,4 +159,4 @@ End of example.
 - `references/realitykit-focus.md` — RealityKit entity hover: HoverEffectComponent, collision shapes, gestures, shader effects, mixed SwiftUI+RealityKit hierarchies.
 - `references/async-focus.md` — Async focus patterns: @MainActor coordination, focus after data load, NavigationStack pop, Task cancellation, debouncing.
 - `references/accessibility-focus.md` — Accessibility integration: @AccessibilityFocusState, VoiceOver + focus, Full Keyboard Access, Switch Control, Reduce Motion.
-- `references/debugging.md` — UIFocusDebugger, _whyIsThisViewNotFocusable, launch arguments, Quick Look.
+- `references/debugging.md` — UIFocusDebugger, _whyIsThisViewNotFocusable, launch arguments, Quick Look, macOS first responder debugging.

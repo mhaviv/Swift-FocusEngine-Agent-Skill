@@ -1,4 +1,4 @@
-# Debugging tvOS Focus Issues
+# Debugging Focus Issues (tvOS + macOS)
 
 ## UIFocusDebugger (LLDB Commands)
 
@@ -166,3 +166,104 @@ Focus behavior differs between Simulator and Apple TV hardware:
 - Timing of focus animations differs
 - Some focus edge cases only reproduce on hardware
 - Always verify critical focus flows on a physical device
+
+## macOS Focus Debugging
+
+### Inspecting First Responder
+
+```
+(lldb) po NSApp.keyWindow?.firstResponder
+// Shows the currently focused view
+
+(lldb) po NSApp.keyWindow?.firstResponder?.nextResponder
+// Shows next in responder chain
+```
+
+### Debugging Key View Loop
+
+Print the entire Tab order to verify correctness:
+
+```swift
+// Debug helper — call from lldb or a debug button
+func printKeyViewLoop(from window: NSWindow) {
+    guard let first = window.initialFirstResponder ?? window.contentView else { return }
+    var current: NSView? = first
+    var visited = Set<ObjectIdentifier>()
+    repeat {
+        guard let view = current else { break }
+        let id = ObjectIdentifier(view)
+        if visited.contains(id) {
+            print("→ (loop complete, back to \(type(of: view)))")
+            break
+        }
+        visited.insert(id)
+        print("→ \(type(of: view)) canBecomeKeyView=\(view.canBecomeKeyView) acceptsFirstResponder=\(view.acceptsFirstResponder)")
+        current = view.nextValidKeyView
+    } while current != nil
+}
+```
+
+### NSWindow.initialFirstResponder
+
+```
+(lldb) po window.initialFirstResponder
+// View that receives focus when window first opens
+// nil = no view gets automatic focus
+```
+
+If `initialFirstResponder` is nil, the window opens with no focused view. Set it in Interface Builder or programmatically:
+
+```swift
+override func windowDidLoad() {
+    super.windowDidLoad()
+    window?.initialFirstResponder = searchField
+}
+```
+
+### Common macOS Focus Debugging Checklist
+
+**View won't accept Tab focus:**
+1. Is `acceptsFirstResponder` overridden to return `true`?
+2. Is `canBecomeKeyView` returning `true`?
+3. Is the view hidden, zero-alpha, or not in a window?
+4. Is `isHidden` true on an ancestor?
+5. Is the view in the key view loop? Check `nextKeyView` chain.
+6. Is `recalculatesKeyViewLoop` enabled and possibly excluding the view geometrically?
+
+**Focus ring not appearing:**
+1. Is `focusRingType` set to `.none`?
+2. Is `.focusEffectDisabled()` applied (SwiftUI)?
+3. Is Full Keyboard Access enabled for non-text controls?
+4. Is the view actually the first responder? Check `window.firstResponder`.
+
+**Focus jumps to wrong view after sheet/alert:**
+1. Is the previous first responder saved before showing the sheet?
+2. Is `makeFirstResponder` called in the completion handler?
+3. Does the saved view still exist in the hierarchy?
+
+**Menu items don't respond to focused content:**
+1. Is `focusedValue` set on the view hierarchy?
+2. Is `@FocusedValue` reading the correct key in Commands?
+3. Is the view in the key window (not main window behind a panel)?
+4. Is `focusedSceneValue` needed for multi-window?
+
+### Accessibility Inspector
+
+Use Accessibility Inspector (Xcode > Open Developer Tool > Accessibility Inspector) to verify:
+- Which element has keyboard focus
+- Which element VoiceOver is reading
+- Whether elements are properly labeled
+- Focus order for Full Keyboard Access
+
+### Debug with Notifications
+
+```swift
+// Track all focus changes in a window
+NotificationCenter.default.addObserver(
+    forName: NSWindow.didBecomeKeyNotification,
+    object: nil, queue: .main
+) { note in
+    let window = note.object as? NSWindow
+    print("Key window: \(window?.title ?? "nil"), firstResponder: \(window?.firstResponder ?? "nil" as Any)")
+}
+```

@@ -1,4 +1,4 @@
-# Common tvOS Layout Patterns and Focus
+# Common Layout Patterns and Focus (tvOS + macOS)
 
 ## Netflix/VOD Pattern: Table of Horizontal Collections
 
@@ -236,3 +236,163 @@ NavigationSplitView {
 ```
 
 For custom implementation, use two `.focusSection()` panes and handle `.onExitCommand` to return to the master list.
+
+## macOS Layout Patterns
+
+### Sidebar + Content (NavigationSplitView)
+
+The standard macOS document/navigation pattern. Focus moves between sidebar and content via Tab or mouse click.
+
+```swift
+NavigationSplitView {
+    List(items, selection: $selectedItem) { item in
+        Text(item.title)
+    }
+    .focusSection()  // macOS 14+ — Tab switches between sidebar and content
+} detail: {
+    if let item = selectedItem {
+        DetailView(item: item)
+            .focusSection()
+    }
+}
+```
+
+AppKit equivalent uses `NSSplitViewController`:
+
+```swift
+class MainSplitViewController: NSSplitViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Tab moves between split panes automatically
+        // Arrow keys navigate within each pane
+    }
+
+    // Focus the sidebar's first item on Cmd+1
+    @IBAction func focusSidebar(_ sender: Any?) {
+        let sidebarVC = splitViewItems[0].viewController
+        view.window?.makeFirstResponder(sidebarVC.view)
+    }
+}
+```
+
+### Toolbar + Content
+
+macOS apps with toolbar items above the main content area. Toolbar focus requires Full Keyboard Access or Ctrl+F5.
+
+```swift
+struct ContentView: View {
+    @FocusState private var isContentFocused: Bool
+
+    var body: some View {
+        VStack {
+            // Content area gets focus by default
+            DocumentEditor()
+                .focusable()
+                .focused($isContentFocused)
+        }
+        .toolbar {
+            ToolbarItem {
+                TextField("Search", text: $search)
+                // Search field is Tab-focusable by default
+            }
+        }
+        .onAppear { isContentFocused = true }
+    }
+}
+```
+
+### Multi-Window Document App
+
+Each window has independent focus state. Menu commands target the key window.
+
+```swift
+@main
+struct MyApp: App {
+    var body: some Scene {
+        DocumentGroup(newDocument: MyDocument()) { file in
+            DocumentView(document: file.$document)
+                .focusedSceneValue(\.activeDocument, file.document)
+                // Each window publishes its document for menu commands
+        }
+
+        Settings {
+            SettingsView()
+            // Settings has its own focus scope — independent of documents
+        }
+    }
+}
+
+struct AppCommands: Commands {
+    @FocusedValue(\.activeDocument) var document
+
+    var body: some Commands {
+        CommandGroup(after: .pasteboard) {
+            Button("Format Selection") {
+                document?.formatSelection()
+            }
+            .disabled(document == nil)
+            .keyboardShortcut("f", modifiers: [.command, .shift])
+        }
+    }
+}
+```
+
+### Preferences / Settings Window
+
+```swift
+Settings {
+    TabView {
+        GeneralSettingsView()
+            .tabItem { Label("General", systemImage: "gear") }
+        AdvancedSettingsView()
+            .tabItem { Label("Advanced", systemImage: "gearshape.2") }
+    }
+    .frame(width: 450, height: 300)
+}
+// Tab key cycles through controls in the active settings tab
+// Cmd+1/Cmd+2 switches between tabs
+```
+
+### Inspector Panel Pattern
+
+Floating panel that doesn't steal focus from the main window:
+
+```swift
+// AppKit
+let panel = NSPanel(contentRect: rect,
+                    styleMask: [.titled, .closable, .utilityWindow],
+                    backing: .buffered, defer: false)
+panel.becomesKeyOnlyIfNeeded = true  // Don't steal focus
+panel.isFloatingPanel = true          // Float above document windows
+panel.orderFront(nil)                 // Show without making key
+
+// SwiftUI — use Window scene
+Window("Inspector", id: "inspector") {
+    InspectorView()
+}
+.defaultSize(width: 250, height: 400)
+```
+
+### Source List + Editor + Inspector (Three-Column)
+
+```swift
+NavigationSplitView(columnVisibility: $columnVisibility) {
+    // Source list (sidebar)
+    List(projects, selection: $selectedProject) { project in
+        Label(project.name, systemImage: "folder")
+    }
+    .focusSection()
+} content: {
+    // File list (middle)
+    List(files, selection: $selectedFile) { file in
+        Text(file.name)
+    }
+    .focusSection()
+} detail: {
+    // Editor (right)
+    EditorView(file: selectedFile)
+        .focusSection()
+}
+```
+
+Tab moves between the three columns. Arrow keys navigate within each column. Each column maintains its own selection/focus independently.

@@ -1,6 +1,6 @@
 # Accessibility and Focus
 
-UI focus (`@FocusState`) and accessibility focus (`@AccessibilityFocusState`) are completely separate systems. Getting both right is essential for tvOS, iOS, and visionOS apps.
+UI focus (`@FocusState`) and accessibility focus (`@AccessibilityFocusState`) are completely separate systems. Getting both right is essential for tvOS, iOS, visionOS, and macOS apps.
 
 ## @FocusState vs @AccessibilityFocusState
 
@@ -266,3 +266,86 @@ VoiceOver on tvOS works very differently from iOS. The Siri Remote interaction m
 
 ### 6. Accessibility order conflicting with focus order
 VoiceOver reads in view tree order, focus engine navigates geometrically. Users can get confused when the two orders diverge significantly.
+
+## macOS Accessibility and Focus
+
+### VoiceOver on macOS
+
+macOS VoiceOver uses `VO+Arrow` keys (Control+Option+Arrow) to navigate, separate from Tab focus:
+
+- **Tab focus**: `@FocusState` / first responder (keyboard navigation)
+- **VoiceOver cursor**: Controlled by VO key commands, follows accessibility element order
+- Both systems are active simultaneously when VoiceOver is on
+
+```swift
+// SwiftUI — same API, works on macOS
+@AccessibilityFocusState private var voFocus: Field?
+
+TextField("Name", text: $name)
+    .accessibilityFocused($voFocus, equals: .name)
+```
+
+### NSAccessibility Protocol (AppKit)
+
+AppKit views conform to `NSAccessibilityProtocol`. Focus-related properties:
+
+```swift
+class MyView: NSView {
+    override func accessibilityFocusedUIElement() -> Any? {
+        // Return the sub-element that VoiceOver should focus
+        return self
+    }
+
+    override var isAccessibilityFocused: Bool {
+        // Whether VoiceOver cursor is on this element
+        return window?.firstResponder === self
+    }
+
+    override func accessibilityPerformPress() -> Bool {
+        // Called when VoiceOver activates this element (VO+Space)
+        performAction()
+        return true
+    }
+}
+```
+
+### Full Keyboard Access on macOS
+
+macOS Full Keyboard Access (System Settings > Keyboard > Keyboard Navigation) affects:
+- ALL controls become Tab-focusable (buttons, checkboxes, sliders, pop-ups)
+- Focus ring appears on all focused controls
+- Same focus system as regular Tab navigation — `canBecomeKeyView` determines reachability
+
+```swift
+// Check at runtime
+if NSApplication.shared.isFullKeyboardAccessEnabled {
+    // FKA is on — all controls get focus
+} else {
+    // Only text fields and lists receive Tab focus by default
+}
+```
+
+### Voice Control on macOS
+
+Voice Control (macOS 10.15+) shows numbered labels on all interactive elements. Focusable elements that lack accessibility labels get generic numbers only, making them hard to target by voice.
+
+```swift
+// BAD — Voice Control shows "Button 7" with no context
+Button(action: save) {
+    Image(systemName: "square.and.arrow.down")
+}
+
+// GOOD — Voice Control shows "Save" label
+Button(action: save) {
+    Image(systemName: "square.and.arrow.down")
+}
+.accessibilityLabel("Save")
+```
+
+### macOS Accessibility Focus Mistakes
+
+**7. Not setting accessibility labels on toolbar items.** NSToolbarItem buttons are often icon-only. VoiceOver announces "Button" with no context.
+
+**8. Menu items without proper accessibility.** Custom menu items should have accessibility labels if they contain non-text content (icons, custom views).
+
+**9. Ignoring VoiceOver with NSPanel.** Floating panels and popovers can confuse VoiceOver's navigation order. Set `accessibilityModal = true` on modal panels so VoiceOver doesn't read behind them.

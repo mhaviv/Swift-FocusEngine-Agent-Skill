@@ -139,6 +139,41 @@ func willDisplay(cell:, forRowAt indexPath:) {
 }
 ```
 
+## macOS Focus Restoration
+
+### Window First Responder Persistence
+
+macOS automatically preserves the first responder per window. Switching between windows restores focus in each. However, rebuilding the view hierarchy (e.g., SwiftUI re-rendering a view) can reset the first responder.
+
+### Save/Restore Around Sheets and Alerts (AppKit)
+
+```swift
+// Save before showing sheet
+let savedResponder = window.firstResponder
+
+window.beginSheet(sheetWindow) { response in
+    // Restore after sheet dismissal
+    self.window.makeFirstResponder(savedResponder)
+}
+```
+
+SwiftUI `.sheet()` handles this automatically — focus returns to the presenting view on dismiss.
+
+### NSDocument Focus After Save/Revert
+
+When a document reverts (`revert(toContentsOf:ofType:)`), the view hierarchy may reload. Track and restore the focused field:
+
+```swift
+override func revert(toContentsOf url: URL, ofType typeName: String) throws {
+    let savedResponder = windowForSheet?.firstResponder
+    try super.revert(toContentsOf: url, ofType: typeName)
+    // Defer to next run loop — views need time to rebuild
+    DispatchQueue.main.async {
+        self.windowForSheet?.makeFirstResponder(savedResponder)
+    }
+}
+```
+
 ## Handling focus during async transitions
 
 When transitioning between states (loading -> loaded, collapsed -> expanded):

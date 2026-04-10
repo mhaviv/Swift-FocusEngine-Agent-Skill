@@ -1,4 +1,4 @@
-# Focus Visual Feedback for tvOS
+# Focus Visual Feedback (tvOS + macOS)
 
 ## SwiftUI ButtonStyle with @Environment(\.isFocused)
 
@@ -180,3 +180,103 @@ extension View {
     }
 }
 ```
+
+## macOS Focus Ring Styling
+
+### System Focus Ring
+
+macOS uses a blue focus ring (system accent color) drawn by AppKit. It animates in/out automatically.
+
+```swift
+class MyView: NSView {
+    override var acceptsFirstResponder: Bool { true }
+
+    // .exterior — ring outside the view bounds (default)
+    // .interior — ring inside the view bounds
+    // .none — no ring (provide your own visual)
+    override var focusRingType: NSFocusRingType { .exterior }
+}
+```
+
+### Custom Focus Ring Shape
+
+Default focus ring matches view bounds (rectangular). Override for non-rectangular content:
+
+```swift
+class CircularAvatarView: NSView {
+    override var focusRingMaskBounds: NSRect {
+        return bounds  // Region containing the mask
+    }
+
+    override func drawFocusRingMask() {
+        // Ring follows this shape instead of the view's rect
+        let path = NSBezierPath(ovalIn: bounds)
+        path.fill()
+    }
+
+    // Notify AppKit when the mask shape changes (e.g., resize)
+    override func noteFocusRingChanged() {
+        super.noteFocusRingChanged()
+    }
+}
+```
+
+### Disabling Focus Ring for Custom Visuals
+
+```swift
+class CustomStyledView: NSView {
+    override var focusRingType: NSFocusRingType { .none }
+
+    override func drawRect(_ dirtyRect: NSRect) {
+        // Draw custom focus indicator when focused
+        if window?.firstResponder === self {
+            NSColor.controlAccentColor.setStroke()
+            let path = NSBezierPath(roundedRect: bounds.insetBy(dx: 2, dy: 2),
+                                     xRadius: 6, yRadius: 6)
+            path.lineWidth = 2
+            path.stroke()
+        }
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        needsDisplay = true  // Redraw with focus indicator
+        return super.becomeFirstResponder()
+    }
+
+    override func resignFirstResponder() -> Bool {
+        needsDisplay = true  // Redraw without focus indicator
+        return super.resignFirstResponder()
+    }
+}
+```
+
+### SwiftUI Custom Focus Styling on macOS
+
+```swift
+struct MacCardView: View {
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        content
+            .focusable()
+            .focused($isFocused)
+            .focusEffectDisabled()  // Hide system ring
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(isFocused ? Color.accentColor : .clear, lineWidth: 2)
+            )
+            .shadow(color: isFocused ? .accentColor.opacity(0.3) : .clear, radius: 8)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
+    }
+}
+```
+
+### macOS vs tvOS Focus Styling Comparison
+
+| Aspect | tvOS | macOS |
+|--------|------|-------|
+| Default effect | Scale up + shadow + parallax | Blue focus ring |
+| Custom via | `@Environment(\.isFocused)` in ButtonStyle | `focusRingType` + `drawFocusRingMask()` or SwiftUI `@FocusState` |
+| Animation | `UIFocusAnimationCoordinator` | `needsDisplay = true` or SwiftUI `.animation` |
+| System style | `.buttonStyle(.card)` | System focus ring (automatic) |
+| Disable default | `.buttonStyle(.plain)` | `.focusEffectDisabled()` or `focusRingType = .none` |

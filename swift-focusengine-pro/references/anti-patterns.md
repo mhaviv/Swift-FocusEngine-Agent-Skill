@@ -1,6 +1,6 @@
-# tvOS Focus Anti-Patterns
+# Focus Anti-Patterns (All Platforms)
 
-These are critical mistakes that break tvOS focus navigation. Flag any occurrence immediately.
+These are critical mistakes that break focus navigation. Flag any occurrence immediately. Patterns 1-14 are primarily tvOS. Patterns 15-21 are macOS-specific.
 
 ## Blocking (must fix before ship)
 
@@ -196,3 +196,115 @@ Workaround: Use `@FocusState` + `defaultFocus(_:_:priority:)` or set focus progr
 ### 14. LazyVStack/LazyVGrid performance on Apple TV HD
 
 `LazyVStack` and `LazyVGrid` inside `ScrollView` have severe lag on tvOS 18 (Apple TV HD). Consider using `List` or a custom List-based grid instead.
+
+## macOS-Specific Anti-Patterns
+
+### 15. Not overriding `acceptsFirstResponder` on custom NSView
+
+Custom NSView subclasses default to `acceptsFirstResponder = false`. The view silently ignores Tab navigation and `makeFirstResponder` calls. This is the #1 macOS focus bug.
+
+```swift
+// BAD — view never receives focus
+class MyCustomView: NSView {
+    // acceptsFirstResponder defaults to false
+}
+
+// GOOD
+class MyCustomView: NSView {
+    override var acceptsFirstResponder: Bool { true }
+    override var canBecomeKeyView: Bool { true }
+}
+```
+
+### 16. Incomplete key view loop
+
+If the last view's `nextKeyView` doesn't loop back to the first view, Tab navigation stops working after reaching the end. Shift-Tab from the first view also fails.
+
+```swift
+// BAD — Tab reaches buttonC and stops
+textField.nextKeyView = buttonA
+buttonA.nextKeyView = buttonB
+buttonB.nextKeyView = buttonC
+// No loop back!
+
+// GOOD — complete the loop
+buttonC.nextKeyView = textField
+```
+
+Alternative: Set `window.recalculatesKeyViewLoop = true` and let the system manage the loop geometrically. But never mix manual `nextKeyView` with `recalculatesKeyViewLoop`.
+
+### 17. Calling `becomeFirstResponder()` directly
+
+Never call `becomeFirstResponder()` on a view directly. It's meant to be called by the system during `makeFirstResponder(_:)`.
+
+```swift
+// BAD — bypasses the resign/become handshake
+myTextField.becomeFirstResponder()
+
+// GOOD — proper focus handshake via window
+view.window?.makeFirstResponder(myTextField)
+```
+
+Direct calls skip `resignFirstResponder()` on the current first responder, which can leave the previous view in a bad state (e.g., text editing still active).
+
+### 18. NSPanel stealing focus from main window
+
+Panels (inspectors, tool windows) default to becoming the key window, stealing focus from the document. Users lose their cursor position in text editors.
+
+```swift
+// BAD — inspector panel steals focus on every show
+let panel = NSPanel(...)
+panel.makeKeyAndOrderFront(nil)
+
+// GOOD — panel only takes focus when user explicitly clicks inside it
+panel.becomesKeyOnlyIfNeeded = true
+panel.orderFront(nil)  // Show without stealing focus
+```
+
+### 19. Not restoring focus after sheet dismissal
+
+When an NSAlert or sheet is dismissed, focus should return to the view that was focused before the sheet appeared. SwiftUI handles this automatically, but AppKit requires manual tracking.
+
+```swift
+// BAD — focus goes to window, not original view
+alert.runModal()
+
+// GOOD — save and restore
+let savedFirstResponder = window.firstResponder
+alert.beginSheetModal(for: window) { _ in
+    self.window.makeFirstResponder(savedFirstResponder)
+}
+```
+
+### 20. Using `.focusable()` on NSViewRepresentable without bridging
+
+Adding `.focusable()` to a SwiftUI view wrapping AppKit via `NSViewRepresentable` creates a SwiftUI focus layer that doesn't coordinate with AppKit's first responder. The AppKit view handles its own focus.
+
+```swift
+// BAD — double focus, SwiftUI ring + AppKit ring
+struct MyAppKitView: NSViewRepresentable { ... }
+MyAppKitView()
+    .focusable()  // Don't add this
+
+// GOOD — let AppKit handle focus natively
+struct MyAppKitView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = MyNSView()
+        // NSView handles its own acceptsFirstResponder
+        return view
+    }
+}
+```
+
+### 21. Not disabling menu items when no document is focused
+
+Menu items that depend on `focusedValue` but don't check for nil remain enabled when no window is key (e.g., all windows minimized), leading to crashes or no-ops.
+
+```swift
+// BAD — crashes when document is nil
+Button("Save") { document!.save() }
+
+// GOOD — disable when no focused document
+Button("Save") { document?.save() }
+    .disabled(document == nil)
+```
