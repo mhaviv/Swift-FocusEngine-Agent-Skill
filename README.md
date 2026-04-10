@@ -16,6 +16,18 @@
 </p>
 
 <p align="center">
+  <a href="https://skills.sh/mhaviv/Swift-FocusEngine-Agent-Skill">
+    <img src="https://img.shields.io/badge/skills.sh-Listed-6C47FF?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHRleHQgeD0iNCIgeT0iMTgiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIj7wn5ugPC90ZXh0Pjwvc3ZnPg==&logoColor=white" />
+  </a>
+  <a href="https://github.com/twostraws/Swift-Agent-Skills">
+    <img src="https://img.shields.io/badge/Swift_Agent_Skills-Listed-F05138?logo=swift&logoColor=white" />
+  </a>
+  <a href="https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill/stargazers">
+    <img src="https://img.shields.io/github/stars/mhaviv/Swift-FocusEngine-Agent-Skill?style=flat&logo=github&label=Stars" />
+  </a>
+</p>
+
+<p align="center">
   <a href="https://x.com/michael_haviv">
     <img src="https://img.shields.io/badge/Contact-@michael__haviv-1DA1F2?logo=x&logoColor=white" />
   </a>
@@ -43,6 +55,7 @@ Works with [Claude Code](https://claude.ai/code), [Codex](https://openai.com/cod
 - [FAQ](#faq)
 - [Sources](#sources)
 - [Complementary Skills](#complementary-skills)
+- [Changelog](#changelog)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -350,6 +363,10 @@ Swift FocusEngine Pro pairs well with these skills:
 - [Xcode Build Optimization](https://github.com/AvdLee/Xcode-Build-Optimization-Agent-Skill) by Antoine van der Lee — build benchmarking and optimization
 
 See the [Swift Agent Skills](https://github.com/twostraws/Swift-Agent-Skills) directory for more.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Contributing
 
