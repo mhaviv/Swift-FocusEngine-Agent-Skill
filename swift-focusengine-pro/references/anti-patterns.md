@@ -4,24 +4,42 @@ These are critical mistakes that break focus navigation. Flag any occurrence imm
 
 ## Blocking (must fix before ship)
 
-### 1. Using `.disabled()` instead of `.allowsHitTesting(false)`
+### 1. Using `.disabled()` to toggle interactivity on tvOS
 
 `.disabled(true)` removes the view from the focus chain entirely on tvOS. Focus jumps unpredictably to a distant view. This is the #1 cause of "focus jumpiness."
 
 ```swift
-// BAD
+// BAD — view disappears from focus chain
 Button("Watch") { ... }
     .disabled(isLoading)
+```
 
-// GOOD
+**There is no perfect SwiftUI replacement.** The commonly recommended `.allowsHitTesting(false)` is **unreliable on tvOS** — production testing revealed it may map to `isUserInteractionEnabled = false` under the hood, which anti-pattern #8 warns against. The Fox Weather CTV codebase documented this: `.disabled()` makes buttons non-focusable even when re-enabled, breaking diagonal navigation. But `.allowsHitTesting(false)` was inconclusive about keeping views focusable.
+
+**Recommended approaches, depending on context:**
+
+```swift
+// OPTION A: allowsHitTesting — works for simple cases but verify on device
 Button("Watch") { ... }
     .allowsHitTesting(!isLoading)
     .opacity(isLoading ? 0.5 : 1.0)
+// ⚠️ May not keep view focusable in all contexts. Test on real Apple TV.
+
+// OPTION B: Keep button active, gate the action (most reliable)
+Button("Watch") {
+    guard !isLoading else { return }
+    play()
+}
+.opacity(isLoading ? 0.5 : 1.0)
+// Button stays focusable always. Action is gated in the closure.
+
+// OPTION C: For sidebars/lists — use .disabled() with dual @FocusState gating
+// See anti-pattern #25 for the full pattern.
+// .disabled() works SAFELY when it only constrains ENTRY from outside,
+// with all items enabled once focus is inside the container.
 ```
 
-UIKit equivalent: `UIButton.isEnabled = false` also makes the button unfocusable.
-
-**Caveat:** `.allowsHitTesting(false)` may not be fully reliable on tvOS in all contexts. Production testing on the Fox Weather CTV codebase documented: "Use allowsHitTesting + opacity instead of .disabled() to avoid tvOS focus navigation issues. .disabled() makes buttons non-focusable (even when re-enabled), breaking diagonal navigation to buttons." However, it's inconclusive whether `.allowsHitTesting(false)` always keeps views in the tvOS focus chain — it may map to `isUserInteractionEnabled = false` under the hood. **Always verify on real hardware.**
+UIKit equivalent: `UIButton.isEnabled = false` also makes the button unfocusable. The UIKit flagship pattern never disables individual items — it gates the container's `isUserInteractionEnabled` instead (see layout-patterns.md, UIKit Sidebar section).
 
 **For sidebar/list items with active selection state**, see anti-pattern #25 below — `.disabled()` on multiple items simultaneously is an even worse variant of this problem.
 

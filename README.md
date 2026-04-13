@@ -194,7 +194,7 @@ Use the swift-focusengine-pro skill to review my focus handling code
 
 ### Blocking (must fix before ship)
 
-1. **`.disabled()` removes views from the focus chain on tvOS** — use `.allowsHitTesting(false)` instead
+1. **`.disabled()` removes views from the focus chain on tvOS** — gate the action inside the closure instead (`.allowsHitTesting(false)` is unreliable)
 2. **Missing `.focusSection()` on horizontal ScrollViews** — causes cross-row focus jumping in vertical layouts
 3. **Adding `.focusable()` to Buttons or NavigationLinks** — creates double-focus artifacts
 4. **Mixing SwiftUI and UIKit focus in the same hierarchy** — focus environment conflicts
@@ -275,7 +275,7 @@ Use `UIFocusDebugger.checkFocusability(for:)` in the debugger, `_whyIsThisViewNo
 <details>
 <summary><strong>Why does .disabled() break focus on Apple TV?</strong></summary>
 
-On tvOS, `.disabled()` removes the view entirely from the focus chain. Use `.allowsHitTesting(false)` instead to keep it focusable but non-interactive. See [anti-patterns.md](swift-focusengine-pro/references/anti-patterns.md) (pattern #1).
+On tvOS, `.disabled()` removes the view entirely from the focus chain. `.allowsHitTesting(false)` is commonly recommended but is unreliable — it may map to `isUserInteractionEnabled = false` under the hood. The most reliable approach is to gate the action inside the button closure instead of disabling the view. For lists/sidebars, use the dual `@FocusState` + `.disabled()` gating pattern (anti-pattern #25). See [anti-patterns.md](swift-focusengine-pro/references/anti-patterns.md) (patterns #1 and #25).
 </details>
 
 <details>

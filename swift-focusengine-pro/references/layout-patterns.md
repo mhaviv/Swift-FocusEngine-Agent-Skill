@@ -318,9 +318,11 @@ HStack {
 }
 
 func button(_ direction: ScrollDirection, isDisabled: Bool) -> some View {
-    Button { scroll(direction) } label: { Image(systemName: "chevron.\(direction)") }
+    Button {
+        guard !isDisabled else { return }  // Gate the action, not the view
+        scroll(direction)
+    } label: { Image(systemName: "chevron.\(direction)") }
         .focused($buttonFocus, equals: direction)
-        .allowsHitTesting(!isDisabled)  // NOT .disabled()
         .opacity(isDisabled ? 0.5 : 1.0)
 }
 ```

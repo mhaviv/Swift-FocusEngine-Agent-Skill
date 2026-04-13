@@ -149,7 +149,7 @@ Leave these logs in during development — they're invaluable for debugging on-d
 1. Is `@FocusState` Optional when using `focused($binding, equals:)`?
 2. Is `.focusScope(namespace)` on an ancestor of `prefersDefaultFocus`?
 3. Is `.focusSection()` applied to the container, not individual buttons?
-4. Is `.disabled()` being used? Replace with `.allowsHitTesting(false)`.
+4. Is `.disabled()` being used? It removes views from tvOS focus chain. Gate the action inside the closure instead, or use dual `@FocusState` gating (anti-pattern #25).
 5. Is `.focusable()` added to a Button? Remove it.
 
 ## Testing Focus

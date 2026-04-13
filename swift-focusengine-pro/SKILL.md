@@ -53,7 +53,7 @@ If doing a partial review, load only the relevant reference files.
 - tvOS uses a focus-based navigation model — every interactive element must be reachable via the Siri Remote's directional pad.
 - Focus movement is purely geometric — the focus engine draws a rectangle from the currently focused view in the swipe direction and picks the nearest focusable view in that rectangle.
 - If nothing is in the geometric path, focus does not move. Period. Use `.focusSection()` (SwiftUI) or `UIFocusGuide` (UIKit) to bridge gaps.
-- Never use `.disabled()` on tvOS to hide items from focus — it removes views from the focus chain entirely. Use `.allowsHitTesting(false)` + `.opacity()` for single items. For sidebars/lists, use the dual `@FocusState` + `.disabled()` gating pattern (anti-pattern #25) that only constrains entry from outside.
+- Never use `.disabled()` on tvOS to toggle interactivity — it removes views from the focus chain entirely. `.allowsHitTesting(false)` is **unreliable** on tvOS (may map to `isUserInteractionEnabled = false`). Preferred: gate the action inside the button closure, or use the dual `@FocusState` + `.disabled()` gating pattern for lists (anti-pattern #25).
 - `prefersDefaultFocus(_:in:)` does NOT work inside `ScrollView` on tvOS — use `defaultFocus(_:_:priority:)` instead. Note: `defaultFocus` with `.userInitiated` only fires on initial appearance, NOT on every re-entry.
 - Prefer `ScrollPosition` over `ScrollViewReader.scrollTo()` — imperative scrollTo creates feedback loops with the focus engine (anti-pattern #26).
 - Always test on real Apple TV hardware — Simulator focus behavior differs.
@@ -109,17 +109,17 @@ Example output:
 
 ### TopicsView.swift
 
-**Line 49: Use `.allowsHitTesting(false)` instead of `.disabled()` on tvOS.**
+**Line 49: `.disabled()` removes view from tvOS focus chain (anti-pattern #1).**
 
 ```swift
 // Before
 TopicClipsGridView(...)
     .disabled(!wrapper.isGridFocusable)
 
-// After
+// After — gate the action, not the view
 TopicClipsGridView(...)
-    .allowsHitTesting(wrapper.isGridFocusable)
     .opacity(wrapper.isGridFocusable ? 1.0 : 0.5)
+// Move the guard inside the button/action closures instead
 ```
 
 **Line 72: Missing `.focusSection()` on horizontal ScrollView in vertical layout.**

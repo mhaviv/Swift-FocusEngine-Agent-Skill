@@ -300,7 +300,7 @@ This prevents VoiceOver from losing its place when the viewport moves unexpected
 Sighted users see focus move to the error field. VoiceOver users hear nothing because VoiceOver cursor did not move.
 
 ### 2. Using .disabled() which also removes from VoiceOver
-`.disabled(true)` makes elements inaccessible to both focus AND VoiceOver. Use `.allowsHitTesting(false)` and set `.accessibilityLabel` with disabled state info.
+`.disabled(true)` makes elements inaccessible to both focus AND VoiceOver. On tvOS, gate the action inside the button closure instead of disabling the view (see anti-pattern #1). Note: `.allowsHitTesting(false)` is unreliable on tvOS and may also remove views from VoiceOver. Always set `.accessibilityLabel` with disabled state info regardless of approach.
 
 ### 3. Missing accessibility labels on focusable custom views
 VoiceOver announces "Button" with no context. Every focusable element needs a descriptive label.
