@@ -1,21 +1,13 @@
 ---
 name: swift-focusengine-pro
-description: >
-  Reviews and fixes focus management code for all Apple platforms
-  (tvOS, iOS, watchOS, visionOS, macOS) in SwiftUI and UIKit.
+description: Reviews and fixes focus management code for Apple platforms in SwiftUI and UIKit.
 version: 1.5.0
 author: Michael Haviv
 tags:
   - swift
   - swiftui
-  - uikit
   - tvos
-  - ios
-  - visionos
-  - macos
   - focus-engine
-  - apple
-  - agent-skill
 ---
 
 Review focus management code for correctness, modern API usage, and adherence to Apple's focus engine rules. Covers all Apple platforms. Report only genuine problems — do not nitpick or invent issues.
