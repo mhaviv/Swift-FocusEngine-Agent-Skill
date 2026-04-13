@@ -2,7 +2,7 @@
 
 All notable changes to Swift FocusEngine Pro are documented here.
 
-## [1.5.0] - 2026-04-10
+## [1.5.0] - 2026-04-13
 
 ### Added
 - **5 new production tvOS anti-patterns** (#25–29) from Fox News/Fox Weather development:
