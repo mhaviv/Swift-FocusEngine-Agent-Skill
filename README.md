@@ -129,6 +129,20 @@ brew install node
 Or download from [nodejs.org](https://nodejs.org).
 </details>
 
+### Updating
+
+Skills are installed as local copies — they don't auto-update. To pull the latest version:
+
+```bash
+# Update all installed skills
+npx skills update -g -y
+
+# Or reinstall this skill specifically
+npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill swift-focusengine-pro -g -y
+```
+
+⭐ **Star and Watch** this repo to get notified of new releases.
+
 ## Using
 
 ### Claude Code
