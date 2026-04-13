@@ -275,6 +275,25 @@ override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator:
 }
 ```
 
+## VoiceOver Guard on Animated Scroll (tvOS)
+
+When using `withAnimation` for programmatic scrolling in sidebars or lists, VoiceOver users can get disoriented by unexpected scroll animations. Check `UIAccessibility.isVoiceOverRunning` and skip animation:
+
+```swift
+.onChange(of: focusedIndex) { _, newIndex in
+    guard let index = newIndex else { return }
+    if UIAccessibility.isVoiceOverRunning {
+        scrollPosition.scrollTo(id: index)  // No animation
+    } else {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            scrollPosition.scrollTo(id: index)
+        }
+    }
+}
+```
+
+This prevents VoiceOver from losing its place when the viewport moves unexpectedly.
+
 ## Common Mistakes
 
 ### 1. Setting @FocusState but not @AccessibilityFocusState on error

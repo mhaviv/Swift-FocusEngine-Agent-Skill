@@ -2,6 +2,28 @@
 
 All notable changes to Swift FocusEngine Pro are documented here.
 
+## [1.5.0] - 2026-04-10
+
+### Added
+- **5 new production tvOS anti-patterns** (#25–29) from Fox News/Fox Weather development:
+  - #25: `.disabled()` on multiple list items with active selection state — mass-toggle focus cascade
+  - #26: `ScrollViewReader.scrollTo()` inside `onChange` creates feedback loops with focus engine
+  - #27: `@Observable` same-value mutation triggers unnecessary body re-evaluation
+  - #28: `defaultFocus` with `.userInitiated` only fires on initial appearance, not re-entry
+  - #29: Transient focus bouncing during navigation transitions (sidebar pass-through)
+- **Production sidebar pattern** — dual `@FocusState` (container + per-item) with `.disabled()` gating for focus re-entry
+- **UIKit flagship sidebar comparison** — `remembersLastFocusedIndexPath`, container-level `isUserInteractionEnabled`, 0.5s debounce
+- **`ScrollPosition` vs `ScrollViewReader`** — declarative scroll binding that doesn't fight the focus engine
+- **Scroll edge fade patterns** — `.scrollEdgeEffectStyle(.soft)` (tvOS 26+), manual gradient mask with `.mask()`, `onGeometryChange` tracking
+- **Focus scale matching** — flagship 1.13x scale comparison table for SwiftUI `scaleEffect`
+- **`@Observable` focus integration** — same-value guard, `@ObservationIgnored` for non-UI state
+- **ScrollTo feedback loop documentation** — detailed cause/fix in `async-focus.md`
+- **Focus cascade debugging guide** — structured logging patterns, what to look for in cascade logs
+- **VoiceOver scroll animation guard** — check `UIAccessibility.isVoiceOverRunning` before animated scroll
+- **Updated anti-pattern #1** — added caveat about `.allowsHitTesting(false)` reliability on tvOS
+- **Updated SKILL.md core instructions** — `defaultFocus` re-entry limitation, `ScrollPosition` preference
+- Total anti-patterns: 29 (up from 24)
+
 ## [1.4.0] - 2026-04-10
 
 ### Added

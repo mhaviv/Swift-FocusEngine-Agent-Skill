@@ -70,7 +70,7 @@ The table view naturally isolates rows — vertical focus moves between table ce
 
 ## Sidebar + Content Pattern
 
-### SwiftUI (Fox Weather pattern)
+### SwiftUI (Fox Weather pattern — basic)
 
 ```swift
 struct SidebarContentView: View {
@@ -109,6 +109,81 @@ Key patterns:
 - Sidebar expand/collapse driven by focus entering/leaving
 - `.onExitCommand` returns focus to sidebar instead of exiting app
 - `isInitialLoad` guard to prevent sidebar expanding on first appearance
+
+### SwiftUI (Production pattern — dual @FocusState with .disabled() gating)
+
+The basic sidebar pattern above has a critical flaw: when focus leaves (to grid, nav bar) and returns, `@FocusState` doesn't guarantee landing on the correct item. This production pattern from Fox News tvOS solves it by combining three techniques:
+
+```swift
+struct TopicsSidebarView: View {
+    @FocusState private var isContainerFocused: Bool   // Container-level
+    @FocusState private var focusedIndex: Int?         // Per-item
+    @State private var scrollPosition = ScrollPosition(idType: Int.self)
+    
+    let items: [Topic]
+    let selectedIndex: Int
+    
+    var body: some View {
+        ScrollView(.vertical) {
+            VStack(spacing: 0) {
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                    Button(item.title) { onSelect(index) }
+                        .focused($focusedIndex, equals: index)
+                        // KEY: Only the selected item is focusable when focus is OUTSIDE.
+                        // All items are focusable when focus is INSIDE.
+                        .disabled(!isContainerFocused && selectedIndex != index)
+                }
+            }
+        }
+        .focused($isContainerFocused)
+        .scrollPosition($scrollPosition)  // Declarative — no ScrollViewReader
+        .focusSection()
+        .onChange(of: focusedIndex) { old, new in
+            // Only act on within-sidebar navigation (both non-nil)
+            guard let _ = old, let newIndex = new else { return }
+            onFocusChanged(newIndex)
+        }
+    }
+}
+```
+
+**Why this works:**
+1. **`.disabled()` gating** — When focus is outside the sidebar, only the selected item is enabled. The focus engine can only land on it — no visible jump through wrong items.
+2. **Container `@FocusState`** — `isContainerFocused` provides stable tracking of whether the sidebar has focus, without the instability of per-item nil checks.
+3. **`ScrollPosition`** — Declarative scroll binding avoids `ScrollViewReader.scrollTo()` feedback loops (see anti-pattern #26).
+4. **`onChange` guard** — Filters out transient focus touches during pass-through transitions (see anti-pattern #29).
+
+### UIKit Sidebar (Flagship Fox News pattern)
+
+The UIKit flagship uses a fundamentally different approach that avoids SwiftUI's focus chain issues:
+
+```swift
+class TopicsSidebarViewController: UITableViewController {
+    // KEY: Never disable individual rows — use container-level gating
+    // and remembersLastFocusedIndexPath for restoration
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.remembersLastFocusedIndexPath = true
+    }
+    
+    // Gate the CONTAINER, not individual items
+    func setInteractionEnabled(_ enabled: Bool) {
+        // Debounce rapid state changes with 0.5s timer
+        debounceTimer?.invalidate()
+        debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+            self?.tableView.isUserInteractionEnabled = enabled
+        }
+    }
+}
+```
+
+**Key differences from SwiftUI:**
+- **Never disables individual rows** — avoids the mass-toggle cascade
+- **`remembersLastFocusedIndexPath = true`** — built-in focus restoration (no SwiftUI equivalent)
+- **Container-level `isUserInteractionEnabled`** — toggles the entire table, not individual cells
+- **0.5s debounce** — prevents rapid state changes during navigation transitions
+- **Built-in scroll fade** — `UITableView` has native gradient edge fading (SwiftUI requires manual mask)
 
 ### UIKit
 
@@ -435,3 +510,87 @@ NavigationSplitView(columnVisibility: $columnVisibility) {
 ```
 
 Tab moves between the three columns. Arrow keys navigate within each column. Each column maintains its own selection/focus independently.
+
+## Scroll Edge Fade (tvOS)
+
+UIKit's `UITableView` provides built-in gradient edge fading. SwiftUI has no equivalent — you must build it manually.
+
+### `.scrollEdgeEffectStyle(.soft)` (tvOS 26+)
+
+```swift
+ScrollView(.vertical) {
+    VStack { /* content */ }
+}
+.scrollEdgeEffectStyle(.soft, for: .all)
+```
+
+**Warning:** The tvOS 26 Liquid Glass effect makes this very subtle — often too subtle for media apps with dark backgrounds. Test carefully and fall back to manual mask if needed.
+
+### Manual gradient mask (all tvOS versions)
+
+Use `.mask()` with static gradient stops matching UIKit's `CAGradientLayer`:
+
+```swift
+struct StaticEdgeFadeMask: View {
+    let fadeHeight: CGFloat = 40  // Match flagship's CAGradientLayer stop distance
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Top fade
+            LinearGradient(colors: [.clear, .black],
+                           startPoint: .top, endPoint: .bottom)
+                .frame(height: fadeHeight)
+            
+            // Fully visible content area
+            Color.black
+            
+            // Bottom fade
+            LinearGradient(colors: [.black, .clear],
+                           startPoint: .top, endPoint: .bottom)
+                .frame(height: fadeHeight)
+        }
+    }
+}
+
+// Apply to ScrollView
+ScrollView(.vertical) {
+    VStack { /* sidebar items */ }
+}
+.mask { StaticEdgeFadeMask() }
+```
+
+**Important:** Use `.mask()`, not `.overlay()`. An overlay with solid colors shows a visible square against radial gradient backgrounds. `.mask()` works with any background because it only affects alpha.
+
+### Dynamic scroll position tracking (tvOS 17+)
+
+For fades that respond to scroll position (e.g., hiding top fade when at the top):
+
+```swift
+.onGeometryChange(for: CGFloat.self) { proxy in
+    proxy.frame(in: .scrollView).minY
+} action: { offset in
+    isScrolledFromTop = offset < -10
+}
+```
+
+### ScrollViewReader custom anchor for gentle scrolling
+
+When programmatic scrolling is needed, use a custom anchor to avoid aggressive centering:
+
+```swift
+proxy.scrollTo(id, anchor: UnitPoint(x: 0.5, y: 0.7))
+// y: 0.7 keeps the item in the lower third — gentler than .center
+```
+
+## Focus Scale Matching (tvOS)
+
+UIKit apps typically use `adjustsImageWhenAncestorFocused` which applies ~1.13x scale with parallax. SwiftUI `scaleEffect` should match:
+
+| Element | UIKit (Flagship) | SwiftUI (Recommended) |
+|---------|-----------------|----------------------|
+| Clip card | System focus (~1.13 + parallax) | `scaleEffect(1.13)` |
+| Show poster | System focus (~1.13 + parallax) | `scaleEffect(1.13)` |
+| Sidebar row | No scale — color/pill only | No scale — color/pill only |
+| Shadow (focused) | System parallax shadow | opacity 0.5, radius 24, y 18 |
+
+When using 1.13 scale, increase vertical padding around rows to accommodate growth: `card_height * 0.13 / 2 ≈ 26pt` on each side (round up to 40pt for safety).

@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/macOS-12+-000000?logo=apple" />
   <img src="https://img.shields.io/badge/Swift-5.9+-F05138?logo=swift&logoColor=white" />
   <img src="https://img.shields.io/badge/License-MIT-blue" />
-  <img src="https://img.shields.io/badge/version-1.4.0-brightgreen" />
+  <img src="https://img.shields.io/badge/version-1.5.0-brightgreen" />
 </p>
 
 <p align="center">
@@ -171,11 +171,11 @@ Use the swift-focusengine-pro skill to review my focus handling code
 
 ## What It Covers
 
-### 4,600+ lines of focus expertise across 14 reference files (v1.4)
+### 4,500+ lines of focus expertise across 14 reference files (v1.5)
 
 | Reference | Platform | Coverage |
 |-----------|----------|----------|
-| **anti-patterns.md** | All | 24 critical mistakes: 17 tvOS + 7 macOS-specific anti-patterns |
+| **anti-patterns.md** | All | 29 critical mistakes: 17 original tvOS + 5 production tvOS + 7 macOS-specific |
 | **swiftui-focus.md** | tvOS | @FocusState, focusSection, prefersDefaultFocus, AutoFocusManager pattern |
 | **uikit-focus.md** | tvOS | UIFocusEnvironment, UIFocusGuide, shouldUpdateFocus, didUpdateFocus |
 | **ios-focus.md** | iOS/iPadOS | SwiftUI + UIKit: focus groups, focusGroupIdentifier, UIFocusHaloEffect, keyboard nav, focusedValue, game controller, Stage Manager |

@@ -1,6 +1,6 @@
 # Focus Anti-Patterns (All Platforms)
 
-These are critical mistakes that break focus navigation. Flag any occurrence immediately. Patterns 1-17 are primarily tvOS. Patterns 18-24 are macOS-specific.
+These are critical mistakes that break focus navigation. Flag any occurrence immediately. Patterns 1-17 are the original tvOS patterns. Patterns 18-24 are macOS-specific. Patterns 25-29 are production tvOS patterns discovered during Fox News/Fox Weather development.
 
 ## Blocking (must fix before ship)
 
@@ -20,6 +20,10 @@ Button("Watch") { ... }
 ```
 
 UIKit equivalent: `UIButton.isEnabled = false` also makes the button unfocusable.
+
+**Caveat:** `.allowsHitTesting(false)` may not be fully reliable on tvOS in all contexts. Production testing on the Fox Weather CTV codebase documented: "Use allowsHitTesting + opacity instead of .disabled() to avoid tvOS focus navigation issues. .disabled() makes buttons non-focusable (even when re-enabled), breaking diagonal navigation to buttons." However, it's inconclusive whether `.allowsHitTesting(false)` always keeps views in the tvOS focus chain — it may map to `isUserInteractionEnabled = false` under the hood. **Always verify on real hardware.**
+
+**For sidebar/list items with active selection state**, see anti-pattern #25 below — `.disabled()` on multiple items simultaneously is an even worse variant of this problem.
 
 ### 2. Missing `.focusSection()` on horizontal ScrollViews in vertical layouts
 
@@ -278,6 +282,146 @@ override func didUpdateFocus(in context: UIFocusUpdateContext,
 ```
 
 Same rule applies to `shouldUpdateFocus(in:)` — no `String` formatting, no array creation, no object allocation.
+
+### 25. `.disabled()` on multiple list/sidebar items with active selection state
+
+This is the most dangerous variant of anti-pattern #1. When you use `.disabled(!canFocus)` on MULTIPLE items in a list where `canFocus` depends on `activeTopicIndex`, ALL items simultaneously re-enter or leave the focus chain when the active index changes. This causes a "focus cascade" — the focus engine rapidly cycles through every item, creating visible flickering.
+
+```swift
+// BAD — mass-toggle: when activeSection changes, ALL rows simultaneously
+// enter/leave the focus chain, causing rapid cascade
+ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+    Button(item.title) { select(index) }
+        .disabled(activeSection != nil && activeSection != index)
+}
+
+// GOOD — use .disabled() only to GATE ENTRY from outside, not for
+// within-list navigation. Combine with container-level @FocusState:
+@FocusState private var isContainerFocused: Bool
+@FocusState private var focusedIndex: Int?
+
+ScrollView {
+    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+        Button(item.title) { select(index) }
+            .focused($focusedIndex, equals: index)
+            .disabled(!isContainerFocused && selectedIndex != index)
+            // When focus is INSIDE the sidebar, all items are enabled.
+            // When focus is OUTSIDE, only the selected item is enabled,
+            // so the focus engine can only land on the correct one.
+    }
+}
+.focused($isContainerFocused)
+```
+
+This "dual `@FocusState`" pattern (container + per-item) was discovered in production Fox News tvOS development. The key insight: `.disabled()` gating works when it only constrains ENTRY from outside, not when it toggles during active navigation within the list.
+
+### 26. `ScrollViewReader.scrollTo()` inside `onChange` creates feedback loops with focus engine
+
+Imperative `scrollTo` repositions the viewport, which moves items under the focus cursor, triggering new focus calculations that fire `onChange` again, which calls `scrollTo` again — cascading.
+
+```swift
+// BAD — feedback loop: scrollTo → items move → focus changes → onChange → scrollTo
+ScrollViewReader { proxy in
+    ScrollView {
+        ForEach(items) { item in
+            Button(item.title) { }
+                .focused($focusedItem, equals: item.id)
+        }
+    }
+    .onChange(of: focusedItem) { _, newValue in
+        withAnimation {
+            proxy.scrollTo(newValue, anchor: .center)  // Disrupts focus!
+        }
+    }
+}
+
+// GOOD — declarative ScrollPosition (tvOS 17+, iOS 17+) doesn't fight the focus engine
+@State private var scrollPosition = ScrollPosition(idType: String.self)
+
+ScrollView {
+    ForEach(items) { item in
+        Button(item.title) { }
+            .focused($focusedItem, equals: item.id)
+    }
+}
+.scrollPosition($scrollPosition)
+```
+
+The declarative `ScrollPosition` approach lets SwiftUI coordinate scrolling and focus atomically, avoiding the imperative feedback loop. If you must use `ScrollViewReader`, disable animation on programmatic scrolls during focus transitions.
+
+### 27. `@Observable` same-value mutation triggers unnecessary body re-evaluation
+
+With `@Observable`, property setters ALWAYS call `withMutation()` — even when the new value equals the old value. This fires observation notifications, causing SwiftUI to re-evaluate `body`, which can disrupt the focus engine mid-operation.
+
+```swift
+// BAD — always fires observation even when value unchanged
+@Observable class TopicsViewModel {
+    var displayedTopicIndex: Int = 0
+    
+    func topicFocused(index: Int) {
+        displayedTopicIndex = index  // Fires even if index == displayedTopicIndex
+    }
+}
+
+// GOOD — guard against same-value assignment
+@Observable class TopicsViewModel {
+    var displayedTopicIndex: Int = 0
+    
+    func topicFocused(index: Int) {
+        guard displayedTopicIndex != index else { return }
+        displayedTopicIndex = index
+    }
+}
+```
+
+This is especially critical in focus callbacks (`onChange(of: focusedItem)`) where rapid focus traversal can set the same value repeatedly, each time triggering a body re-evaluation that disrupts the focus engine.
+
+### 28. `defaultFocus` with `.userInitiated` only fires on initial appearance
+
+`.defaultFocus($focusedItem, firstItem, priority: .userInitiated)` only evaluates when the focus branch first appears — NOT on every re-entry. If focus leaves (e.g., to nav bar) and returns, `defaultFocus` does NOT redirect focus to the desired item.
+
+```swift
+// BAD — expects defaultFocus to redirect on every re-entry
+VStack {
+    SidebarView()
+        .focusSection()
+    GridView()
+        .focusSection()
+}
+.defaultFocus($focusedSidebarIndex, selectedTopic, priority: .userInitiated)
+// Works on first appear, does NOT work when returning from grid/nav
+
+// GOOD — use dual @FocusState + .disabled() gating (see anti-pattern #25)
+// or use container-level onChange to redirect:
+.focused($isContainerFocused)
+.onChange(of: isContainerFocused) { _, isFocused in
+    if isFocused {
+        focusedItem = selectedItem  // Redirect on every re-entry
+    }
+}
+```
+
+### 29. Transient focus bouncing during navigation transitions
+
+When focus passes THROUGH a sidebar during grid→nav bar transitions (e.g., user presses up from grid, focus briefly enters sidebar, then continues to nav bar), the focus enters and exits the sidebar in rapid succession: `nil→10→nil→10→nil→10`. If sidebar state depends on focus (e.g., `onChange` triggers data loads or UI state changes), this causes visible flickering.
+
+```swift
+// BAD — every transient focus touch triggers state changes
+.onChange(of: focusedSidebarIndex) { old, new in
+    if let index = new {
+        viewModel.topicFocused(index: index)  // Fires 3x during transition
+    }
+}
+
+// GOOD — only trigger on "settled" focus (both old and new are non-nil = within-sidebar nav)
+.onChange(of: focusedSidebarIndex) { old, new in
+    guard let oldIndex = old, let newIndex = new else { return }
+    // Both non-nil means focus is moving WITHIN the sidebar, not passing through
+    viewModel.topicFocused(index: newIndex)
+}
+```
+
+Alternatively, use a short debounce (`Task.sleep(for: .milliseconds(100))`) to filter out transient focus touches. But the guard approach is simpler and more reliable.
 
 ## macOS-Specific Anti-Patterns
 

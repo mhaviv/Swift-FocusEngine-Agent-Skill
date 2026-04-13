@@ -319,6 +319,91 @@ struct SearchView: View {
 }
 ```
 
+## @Observable and Focus
+
+### Same-value mutation guard
+
+With `@Observable` (iOS 17+, tvOS 17+), property setters always call `withMutation()` even when the value hasn't changed. This fires observation notifications, causing SwiftUI to re-evaluate `body`, which can disrupt the focus engine mid-navigation.
+
+```swift
+// BAD — every call fires observation, even no-ops
+@Observable class ViewModel {
+    var selectedIndex: Int = 0
+    
+    func indexFocused(_ index: Int) {
+        selectedIndex = index  // Always fires, even if index == selectedIndex
+    }
+}
+
+// GOOD — guard against same-value
+func indexFocused(_ index: Int) {
+    guard selectedIndex != index else { return }
+    selectedIndex = index
+}
+```
+
+This is critical in focus callbacks where rapid traversal may set the same value repeatedly.
+
+### @ObservationIgnored for non-UI state
+
+Properties that drive focus logic but shouldn't trigger view updates should use `@ObservationIgnored`:
+
+```swift
+@Observable class ViewModel {
+    @ObservationIgnored private var paginationTask: Task<Void, Never>?
+    @ObservationIgnored private var debounceTask: Task<Void, Never>?
+    
+    var clips: [Clip] = []  // This should trigger UI updates
+}
+```
+
+## ScrollTo Feedback Loops
+
+Imperative `ScrollViewReader.scrollTo()` inside `onChange(of: focusedItem)` creates cascading focus updates:
+
+1. Focus moves → `onChange` fires → `scrollTo()` animates viewport
+2. Viewport animation repositions items under the focus cursor
+3. Focus engine recalculates → finds new nearest item → focus moves
+4. Goto 1
+
+**Fix:** Replace `ScrollViewReader` with declarative `ScrollPosition` (tvOS 17+):
+
+```swift
+// BAD — imperative scrollTo fights the focus engine
+ScrollViewReader { proxy in
+    ScrollView {
+        ForEach(items) { item in
+            Button(item.title) { }
+                .focused($focusedItem, equals: item.id)
+        }
+    }
+    .onChange(of: focusedItem) { _, new in
+        proxy.scrollTo(new, anchor: .center)  // Triggers cascade!
+    }
+}
+
+// GOOD — declarative ScrollPosition coordinates with focus atomically
+@State private var scrollPosition = ScrollPosition(idType: String.self)
+
+ScrollView {
+    ForEach(items) { item in
+        Button(item.title) { }
+            .focused($focusedItem, equals: item.id)
+    }
+}
+.scrollPosition($scrollPosition)
+```
+
+If `ScrollViewReader` is required (e.g., tvOS 16 support), disable animation on programmatic scrolls and use a debounce:
+
+```swift
+.onChange(of: focusedItem) { _, new in
+    guard let id = new else { return }
+    // No withAnimation — prevents disrupting focus engine
+    proxy.scrollTo(id, anchor: UnitPoint(x: 0.5, y: 0.7))
+}
+```
+
 ## Common Mistakes
 
 ### 1. Setting focus before view is in hierarchy

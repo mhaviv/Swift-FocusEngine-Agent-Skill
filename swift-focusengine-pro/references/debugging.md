@@ -81,6 +81,41 @@ Shows visual diagram:
 - **Purple**: focusable UIView regions in search path
 - **Blue**: focusable UIFocusGuide regions in search path
 
+## Debugging Focus Cascades (SwiftUI)
+
+Focus cascades — where focus rapidly cycles through multiple items — are the hardest SwiftUI focus bugs to debug. Add structured logging to trace the exact sequence:
+
+```swift
+.onChange(of: focusedIndex) { old, new in
+    logger.debug("[Focus] \(old.map(String.init) ?? "nil") → \(new.map(String.init) ?? "nil") active=\(activeIndex.map(String.init) ?? "nil")")
+}
+```
+
+**What to look for in cascade logs:**
+- `nil→0→nil→0→nil→0` = transient focus bouncing during pass-through navigation (see anti-pattern #29)
+- `10→9→8→7→6→5→4→3→2→1→0` = rapid sequential cascade from `.disabled()` mass-toggle (see anti-pattern #25)
+- `0→10 scrollTo 10 10→9` = `scrollTo` feedback loop disrupting focus (see anti-pattern #26)
+- Same value set repeatedly with `active=` unchanged = `@Observable` same-value mutation (see anti-pattern #27)
+
+**Production debug logging pattern:**
+```swift
+// ViewModel — log state transitions
+logger.debug("[Focus] displayedTopicIndex \(old) → \(new)")
+logger.debug("[Load] loadTopic(\(index)) start — isLoading=true, clips cleared")
+logger.debug("[Load] loadTopic(\(index)) complete — clips=\(clips.count)")
+
+// View — log focus with surrounding state
+logger.debug("[Focus] sidebarFocus \(old) → \(new), isGridFocusable=\(isGridFocusable), clips=\(clips.count)")
+
+// Sidebar — log container focus
+logger.debug("[Focus] isContainerFocused \(isFocused)")
+
+// Grid — log what's being rendered
+logger.debug("[Render] clips=\(clips.count), isLoading=\(isLoading), showing=\(clips.isEmpty ? (isLoading ? "skeleton" : "empty") : "grid")")
+```
+
+Leave these logs in during development — they're invaluable for debugging on-device focus issues that don't reproduce in the simulator.
+
 ## Common Focus Issues Checklist
 
 ### Focus doesn't move at all

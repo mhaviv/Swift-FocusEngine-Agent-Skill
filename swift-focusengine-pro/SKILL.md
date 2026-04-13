@@ -4,7 +4,7 @@ description: Reviews, writes, and fixes focus management code for all Apple plat
 license: MIT
 metadata:
   author: Michael Haviv
-  version: "1.3"
+  version: "1.5"
   repository: https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill
   homepage: https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill
   keywords:
@@ -53,8 +53,9 @@ If doing a partial review, load only the relevant reference files.
 - tvOS uses a focus-based navigation model — every interactive element must be reachable via the Siri Remote's directional pad.
 - Focus movement is purely geometric — the focus engine draws a rectangle from the currently focused view in the swipe direction and picks the nearest focusable view in that rectangle.
 - If nothing is in the geometric path, focus does not move. Period. Use `.focusSection()` (SwiftUI) or `UIFocusGuide` (UIKit) to bridge gaps.
-- Never use `.disabled()` on tvOS — it removes views from the focus chain entirely. Use `.allowsHitTesting(false)` + `.opacity()` instead.
-- `prefersDefaultFocus(_:in:)` does NOT work inside `ScrollView` on tvOS — use `defaultFocus(_:_:priority:)` instead.
+- Never use `.disabled()` on tvOS to hide items from focus — it removes views from the focus chain entirely. Use `.allowsHitTesting(false)` + `.opacity()` for single items. For sidebars/lists, use the dual `@FocusState` + `.disabled()` gating pattern (anti-pattern #25) that only constrains entry from outside.
+- `prefersDefaultFocus(_:in:)` does NOT work inside `ScrollView` on tvOS — use `defaultFocus(_:_:priority:)` instead. Note: `defaultFocus` with `.userInitiated` only fires on initial appearance, NOT on every re-entry.
+- Prefer `ScrollPosition` over `ScrollViewReader.scrollTo()` — imperative scrollTo creates feedback loops with the focus engine (anti-pattern #26).
 - Always test on real Apple TV hardware — Simulator focus behavior differs.
 
 ### iOS/iPadOS

@@ -23,7 +23,7 @@ npx skills add https://github.com/mhaviv/Swift-FocusEngine-Agent-Skill --skill s
 
 ## What It Covers
 
-4,600+ lines across 14 reference files: anti-patterns, SwiftUI focus (tvOS), UIKit focus (tvOS), iOS/iPadOS focus, watchOS focus, visionOS focus, macOS focus, RealityKit focus, focus styling, focus restoration, layout patterns, async focus coordination, accessibility focus, and debugging tools.
+4,500+ lines across 14 reference files: 29 anti-patterns (incl. production patterns from Fox News/Fox Weather tvOS), SwiftUI focus (tvOS), UIKit focus (tvOS), iOS/iPadOS focus, watchOS focus, visionOS focus, macOS focus, RealityKit focus, focus styling, focus restoration, layout patterns (sidebar focus gating, scroll edge fade, scale matching), async focus coordination (@Observable integration, ScrollPosition vs ScrollViewReader), accessibility focus, and debugging tools (focus cascade debugging).
 
 ## Key Links
 

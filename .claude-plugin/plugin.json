@@ -1,7 +1,7 @@
 {
   "name": "swift-focusengine-pro",
-  "version": "1.4.0",
-  "description": "Expert focus management guidance for tvOS, iOS/iPadOS, watchOS, visionOS, and macOS. Covers SwiftUI, UIKit, AppKit, and RealityKit focus APIs, 14 critical anti-patterns, and debugging techniques.",
+  "version": "1.5.0",
+  "description": "Expert focus management guidance for tvOS, iOS/iPadOS, watchOS, visionOS, and macOS. Covers SwiftUI, UIKit, AppKit, and RealityKit focus APIs, 29 critical anti-patterns, and debugging techniques.",
   "author": {
     "name": "Michael Haviv",
     "email": "mhaviv@users.noreply.github.com"
